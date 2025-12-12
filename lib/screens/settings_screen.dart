@@ -3,12 +3,49 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../services/session_manager.dart';
+import '../services/parallel_product_lookup_service.dart';
 import 'email_login_screen.dart';
 import 'export_import_screen.dart';
 import '../theme/app_theme.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  final _lookupService = ParallelProductLookupService();
+  bool _openFoodFactsEnabled = true;
+  bool _openBeautyFactsEnabled = true;
+  bool _openPetFoodFactsEnabled = true;
+  bool _openProductFactsEnabled = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadApiSettings();
+  }
+
+  Future<void> _loadApiSettings() async {
+    final openFood = await _lookupService.isApiEnabled('OpenFoodFacts');
+    final openBeauty = await _lookupService.isApiEnabled('OpenBeautyFacts');
+    final openPet = await _lookupService.isApiEnabled('OpenPetFoodFacts');
+    final openProduct = await _lookupService.isApiEnabled('OpenProductFacts');
+
+    setState(() {
+      _openFoodFactsEnabled = openFood;
+      _openBeautyFactsEnabled = openBeauty;
+      _openPetFoodFactsEnabled = openPet;
+      _openProductFactsEnabled = openProduct;
+    });
+  }
+
+  Future<void> _updateApiEnabled(String apiName, bool enabled) async {
+    await _lookupService.setApiEnabled(apiName, enabled);
+    await _loadApiSettings();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +56,51 @@ class SettingsScreen extends StatelessWidget {
       body: ListView(
         children: [
           const SizedBox(height: 16),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+              'Product Lookup',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Text(
+              'Enable or disable product databases for barcode scanning',
+              style: TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+          ),
+          SwitchListTile(
+            secondary: const Icon(Icons.fastfood, color: AppTheme.primaryColor),
+            title: const Text('OpenFoodFacts'),
+            subtitle: const Text('Food and beverage products'),
+            value: _openFoodFactsEnabled,
+            onChanged: (value) => _updateApiEnabled('OpenFoodFacts', value),
+          ),
+          SwitchListTile(
+            secondary:
+                const Icon(Icons.face_retouching_natural, color: Colors.pink),
+            title: const Text('OpenBeautyFacts'),
+            subtitle: const Text('Cosmetics and beauty products'),
+            value: _openBeautyFactsEnabled,
+            onChanged: (value) => _updateApiEnabled('OpenBeautyFacts', value),
+          ),
+          SwitchListTile(
+            secondary: const Icon(Icons.pets, color: Colors.brown),
+            title: const Text('OpenPetFoodFacts'),
+            subtitle: const Text('Pet food and animal products'),
+            value: _openPetFoodFactsEnabled,
+            onChanged: (value) => _updateApiEnabled('OpenPetFoodFacts', value),
+          ),
+          SwitchListTile(
+            secondary: const Icon(Icons.qr_code_2, color: Colors.deepPurple),
+            title: const Text('OpenProductFacts'),
+            subtitle: const Text('General products database'),
+            value: _openProductFactsEnabled,
+            onChanged: (value) => _updateApiEnabled('OpenProductFacts', value),
+          ),
+          const Divider(),
+          const SizedBox(height: 24),
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 16),
             child: Text(
@@ -77,7 +159,8 @@ class SettingsScreen extends StatelessWidget {
           const ListTile(
             leading: Icon(Icons.info_outline),
             title: Text('BharatStore'),
-            subtitle: Text('Version 1.0.0\nOffline Inventory, Billing & Analytics'),
+            subtitle:
+                Text('Version 1.0.0\nOffline Inventory, Billing & Analytics'),
           ),
           const Divider(),
           const ListTile(
@@ -157,34 +240,46 @@ class SettingsScreen extends StatelessWidget {
 
               if (currentPin.isEmpty || newPin.isEmpty || confirmPin.isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Please fill all fields'), backgroundColor: Colors.red),
+                  const SnackBar(
+                      content: Text('Please fill all fields'),
+                      backgroundColor: Colors.red),
                 );
                 return;
               }
 
               if (newPin.length < 4) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('PIN must be at least 4 digits'), backgroundColor: Colors.red),
+                  const SnackBar(
+                      content: Text('PIN must be at least 4 digits'),
+                      backgroundColor: Colors.red),
                 );
                 return;
               }
 
               if (newPin != confirmPin) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('New PINs do not match'), backgroundColor: Colors.red),
+                  const SnackBar(
+                      content: Text('New PINs do not match'),
+                      backgroundColor: Colors.red),
                 );
                 return;
               }
 
               try {
-                await context.read<AuthProvider>().changePin(currentPin, newPin);
+                await context
+                    .read<AuthProvider>()
+                    .changePin(currentPin, newPin);
                 Navigator.pop(dialogContext);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('PIN changed successfully'), backgroundColor: Colors.green),
+                  const SnackBar(
+                      content: Text('PIN changed successfully'),
+                      backgroundColor: Colors.green),
                 );
               } catch (e) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Invalid current PIN'), backgroundColor: Colors.red),
+                  const SnackBar(
+                      content: Text('Invalid current PIN'),
+                      backgroundColor: Colors.red),
                 );
               }
             },
@@ -200,7 +295,8 @@ class SettingsScreen extends StatelessWidget {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Sign Out'),
-        content: const Text('Are you sure you want to sign out?\n\nThis will end your email session and you will need to login again with OTP.'),
+        content: const Text(
+            'Are you sure you want to sign out?\n\nThis will end your email session and you will need to login again with OTP.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
@@ -211,10 +307,10 @@ class SettingsScreen extends StatelessWidget {
               // Deactivate email session
               final sessionManager = SessionManager();
               await sessionManager.invalidateSession();
-              
+
               // Logout from PIN (existing)
               context.read<AuthProvider>().logout();
-              
+
               Navigator.of(dialogContext).pop();
               Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(builder: (_) => const EmailLoginScreen()),

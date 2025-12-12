@@ -34,6 +34,9 @@ class Product extends HiveObject {
   @HiveField(9)
   String unit;
 
+  @HiveField(10)
+  String? source; // API source: OpenFoodFacts, OpenBeautyFacts, etc.
+
   Product({
     required this.id,
     required this.name,
@@ -45,6 +48,7 @@ class Product extends HiveObject {
     this.brand,
     this.category,
     this.unit = 'piece',
+    this.source,
   });
 
   bool get isLowStock => quantity < threshold;
@@ -56,6 +60,7 @@ class Product extends HiveObject {
         'price': price,
         'quantity': quantity,
         'threshold': threshold,
+        'source': source,
         'imageUrl': imageUrl,
         'brand': brand,
         'category': category,
@@ -72,6 +77,7 @@ class Product extends HiveObject {
         imageUrl: json['imageUrl'] as String?,
         brand: json['brand'] as String?,
         category: json['category'] as String?,
+        source: json['source'] as String?,
         unit: json['unit'] as String? ?? 'piece',
       );
 
@@ -86,6 +92,7 @@ class Product extends HiveObject {
     String? brand,
     String? category,
     String? unit,
+    String? source,
   }) {
     return Product(
       id: id ?? this.id,
@@ -98,6 +105,7 @@ class Product extends HiveObject {
       brand: brand ?? this.brand,
       category: category ?? this.category,
       unit: unit ?? this.unit,
+      source: source ?? this.source,
     );
   }
 }
