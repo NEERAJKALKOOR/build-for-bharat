@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
-import 'login_screen.dart';
+import '../services/session_manager.dart';
+import 'email_login_screen.dart';
 import 'export_import_screen.dart';
 import '../theme/app_theme.dart';
 
@@ -199,18 +200,24 @@ class SettingsScreen extends StatelessWidget {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Sign Out'),
-        content: const Text('Are you sure you want to sign out?'),
+        content: const Text('Are you sure you want to sign out?\n\nThis will end your email session and you will need to login again with OTP.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
             child: const Text('CANCEL'),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
+              // Deactivate email session
+              final sessionManager = SessionManager();
+              await sessionManager.invalidateSession();
+              
+              // Logout from PIN (existing)
               context.read<AuthProvider>().logout();
+              
               Navigator.of(dialogContext).pop();
               Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (_) => const LoginScreen()),
+                MaterialPageRoute(builder: (_) => const EmailLoginScreen()),
                 (route) => false,
               );
             },

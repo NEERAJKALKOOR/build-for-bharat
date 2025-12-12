@@ -6,6 +6,8 @@ import 'models/auth_model.dart';
 import 'models/product.dart';
 import 'models/bill_item.dart';
 import 'models/bill.dart';
+import 'models/user_session.dart';
+import 'models/otp_verification.dart';
 import 'services/auth_service.dart';
 import 'services/product_service.dart';
 import 'services/billing_service.dart';
@@ -25,6 +27,8 @@ void main() async {
   Hive.registerAdapter(ProductAdapter());
   Hive.registerAdapter(BillItemAdapter());
   Hive.registerAdapter(BillAdapter());
+  Hive.registerAdapter(UserSessionAdapter());
+  Hive.registerAdapter(OtpVerificationAdapter());
   
   final authService = AuthService();
   final productService = ProductService();
