@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "123456789",
-    "project_id": "bharat-store-demo",
-    "storage_bucket": "bharat-store-demo.appspot.com"
+    "project_number": "424176663882",
+    "project_id": "build-for-bharat-faf1e",
+    "storage_bucket": "build-for-bharat-faf1e.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:123456789:android:abcdef123456",
+        "mobilesdk_app_id": "1:424176663882:android:f39237af26456522ff15b3",
         "android_client_info": {
-          "package_name": "com.example.bharat_store"
+          "package_name": "Bharat.shop"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDummyKeyForDevelopmentPurpose"
+          "current_key": "AIzaSyCO4naHGTunqSVMJ1wbQxcM12k7ee7o3OE"
         }
       ],
       "services": {

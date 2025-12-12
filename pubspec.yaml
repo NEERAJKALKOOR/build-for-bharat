@@ -26,6 +26,9 @@ dependencies:
   uuid: ^4.2.2
   fl_chart: ^0.65.0
   mailer: ^6.1.2
+  google_sign_in: ^6.1.6
+  googleapis: ^11.4.0
+  googleapis_auth: ^1.4.1
 
 dev_dependencies:
   flutter_test:

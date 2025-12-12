@@ -1,45 +1,80 @@
 import 'package:hive/hive.dart';
 
-part 'cloud_backup_settings.g.dart';
-
-@HiveType(typeId: 5)
+@HiveType(typeId: 20)
 class CloudBackupSettings extends HiveObject {
   @HiveField(0)
   bool cloudBackupEnabled;
 
   @HiveField(1)
-  DateTime? lastBackupTime;
+  String? googleEmail;
 
   @HiveField(2)
-  String? userEmail;
+  String? googleAccessToken;
 
   @HiveField(3)
-  String? userId; // SHA256 hash of email
+  DateTime? lastBackupTime;
+
+  @HiveField(4)
+  String? driveFolderId;
+
+  @HiveField(5)
+  String? backupsFolderId;
 
   CloudBackupSettings({
     this.cloudBackupEnabled = false,
+    this.googleEmail,
+    this.googleAccessToken,
     this.lastBackupTime,
-    this.userEmail,
-    this.userId,
+    this.driveFolderId,
+    this.backupsFolderId,
   });
+}
 
-  String getLastBackupFormatted() {
-    if (lastBackupTime == null) {
-      return 'Never';
-    }
-    final now = DateTime.now();
-    final diff = now.difference(lastBackupTime!);
-    
-    if (diff.inMinutes < 1) {
-      return 'Just now';
-    } else if (diff.inHours < 1) {
-      return '${diff.inMinutes} minutes ago';
-    } else if (diff.inDays < 1) {
-      return '${diff.inHours} hours ago';
-    } else if (diff.inDays < 7) {
-      return '${diff.inDays} days ago';
-    } else {
-      return '${lastBackupTime!.day}/${lastBackupTime!.month}/${lastBackupTime!.year}';
-    }
+class CloudBackupSettingsAdapter extends TypeAdapter<CloudBackupSettings> {
+  @override
+  final int typeId = 20;
+
+  @override
+  CloudBackupSettings read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return CloudBackupSettings(
+      cloudBackupEnabled: fields[0] as bool,
+      googleEmail: fields[1] as String?,
+      googleAccessToken: fields[2] as String?,
+      lastBackupTime: fields[3] as DateTime?,
+      driveFolderId: fields[4] as String?,
+      backupsFolderId: fields[5] as String?,
+    );
   }
+
+  @override
+  void write(BinaryWriter writer, CloudBackupSettings obj) {
+    writer
+      ..writeByte(6)
+      ..writeByte(0)
+      ..write(obj.cloudBackupEnabled)
+      ..writeByte(1)
+      ..write(obj.googleEmail)
+      ..writeByte(2)
+      ..write(obj.googleAccessToken)
+      ..writeByte(3)
+      ..write(obj.lastBackupTime)
+      ..writeByte(4)
+      ..write(obj.driveFolderId)
+      ..writeByte(5)
+      ..write(obj.backupsFolderId);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CloudBackupSettingsAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
 }

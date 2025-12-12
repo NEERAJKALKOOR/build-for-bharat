@@ -1,0 +1,28 @@
+
+yaml
+name: Flutter Formatter
+
+on:
+  pull_request:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Run Dart Formatter
+        run: dart format --set-exit-if-changed .
+

@@ -8,6 +8,7 @@ import 'models/bill_item.dart';
 import 'models/bill.dart';
 import 'models/user_session.dart';
 import 'models/otp_verification.dart';
+import 'models/cloud_backup_settings.dart';
 import 'services/auth_service.dart';
 import 'services/product_service.dart';
 import 'services/billing_service.dart';
@@ -29,6 +30,7 @@ void main() async {
   Hive.registerAdapter(BillAdapter());
   Hive.registerAdapter(UserSessionAdapter());
   Hive.registerAdapter(OtpVerificationAdapter());
+  Hive.registerAdapter(CloudBackupSettingsAdapter());
   
   final authService = AuthService();
   final productService = ProductService();
