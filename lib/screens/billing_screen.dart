@@ -22,13 +22,14 @@ class _BillingScreenState extends State<BillingScreen> {
   Future<double?> _showQuantityDialog(Product product) async {
     final bool allowDecimal = ProductUnits.supportsDecimal(product.unit);
     final TextEditingController controller = TextEditingController(text: '1');
-    double quantity = 1.0;
 
     return showDialog<double>(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
+        double quantity = 1.0;
+        
         return StatefulBuilder(
-          builder: (context, setState) {
+          builder: (BuildContext context, StateSetter setState) {
             return AlertDialog(
               title: const Text('Enter Quantity'),
               content: Column(
@@ -72,12 +73,11 @@ class _BillingScreenState extends State<BillingScreen> {
                                   double.tryParse(controller.text) ?? 1.0;
                               double decrement = allowDecimal ? 0.1 : 1.0;
                               if (current > decrement) {
-                                setState(() {
-                                  quantity = current - decrement;
-                                  controller.text = allowDecimal
-                                      ? quantity.toStringAsFixed(2)
-                                      : quantity.toInt().toString();
-                                });
+                                quantity = current - decrement;
+                                controller.text = allowDecimal
+                                    ? quantity.toStringAsFixed(2)
+                                    : quantity.toInt().toString();
+                                setState(() {});
                               }
                             },
                           ),
@@ -88,12 +88,11 @@ class _BillingScreenState extends State<BillingScreen> {
                                   double.tryParse(controller.text) ?? 1.0;
                               double increment = allowDecimal ? 0.1 : 1.0;
                               if (current < product.quantity) {
-                                setState(() {
-                                  quantity = current + increment;
-                                  controller.text = allowDecimal
-                                      ? quantity.toStringAsFixed(2)
-                                      : quantity.toInt().toString();
-                                });
+                                quantity = current + increment;
+                                controller.text = allowDecimal
+                                    ? quantity.toStringAsFixed(2)
+                                    : quantity.toInt().toString();
+                                setState(() {});
                               }
                             },
                           ),
@@ -117,30 +116,16 @@ class _BillingScreenState extends State<BillingScreen> {
               ),
               actions: [
                 TextButton(
-                  onPressed: () => Navigator.of(context).pop(null),
+                  onPressed: () => Navigator.pop(dialogContext),
                   child: const Text('Cancel'),
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    double qty = double.tryParse(controller.text) ?? 1.0;
-                    if (qty <= 0) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Quantity must be greater than 0'),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
-                    } else if (qty > product.quantity) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                              'Only ${product.quantity} ${product.unit} available in stock'),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
-                    } else {
-                      Navigator.of(context).pop(qty);
+                    final qty = double.tryParse(controller.text) ?? 1.0;
+                    if (qty <= 0 || qty > product.quantity) {
+                      return;
                     }
+                    Navigator.pop(dialogContext, qty);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
