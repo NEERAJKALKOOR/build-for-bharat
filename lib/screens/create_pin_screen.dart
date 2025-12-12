@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
-import 'home_screen.dart';
+import 'main_navigation_screen.dart';
 
 class CreatePinScreen extends StatefulWidget {
   const CreatePinScreen({Key? key}) : super(key: key);
@@ -53,7 +53,7 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
 
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
+        MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
       );
     } catch (e) {
       _showError('Failed to create PIN');
