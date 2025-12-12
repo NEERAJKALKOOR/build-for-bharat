@@ -1,4 +1,4 @@
-# my_app
+# bharat_store
 
 A new Flutter project.
 
