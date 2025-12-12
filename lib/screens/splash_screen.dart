@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../providers/auth_provider.dart';
 import '../services/session_manager.dart';
-import 'create_pin_screen.dart';
-import 'pin_login_screen.dart';
 import 'email_login_screen.dart';
+import 'main_navigation_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -26,27 +23,20 @@ class _SplashScreenState extends State<SplashScreen> {
     await Future.delayed(const Duration(seconds: 2));
     if (!mounted) return;
 
-    // STEP 1: Check if user has valid email session
+    // Check if user has valid email session
     final hasValidSession = await _sessionManager.hasValidSession();
 
-    if (!hasValidSession) {
+    if (hasValidSession) {
+      // Valid session -> go directly to Dashboard
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
+      );
+    } else {
       // No valid session -> redirect to Email Login
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const EmailLoginScreen()),
       );
-      return;
     }
-
-    // STEP 2: Session is valid, check if PIN is set
-    final authProvider = context.read<AuthProvider>();
-
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) => authProvider.isPinSet
-            ? const PinLoginScreen()
-            : const CreatePinScreen(),
-      ),
-    );
   }
 
   @override

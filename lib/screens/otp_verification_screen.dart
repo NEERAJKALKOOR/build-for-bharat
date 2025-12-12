@@ -1,12 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 import '../services/otp_service.dart';
 import '../services/session_manager.dart';
-import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
-import 'create_pin_screen.dart';
 import 'main_navigation_screen.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
@@ -112,16 +109,11 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
               ),
             );
 
-            // Check if PIN is set
-            final authProvider = context.read<AuthProvider>();
-            
-            // Navigate to Create PIN Screen or Dashboard
+            // Navigate directly to Dashboard (skip PIN)
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (_) => authProvider.isPinSet
-                    ? const MainNavigationScreen() // Go directly to dashboard
-                    : const CreatePinScreen(), // Go to create PIN first
+                builder: (_) => const MainNavigationScreen(),
               ),
             );
           }
