@@ -14,7 +14,7 @@ class FinalizeBillScreen extends StatefulWidget {
 }
 
 class _FinalizeBillScreenState extends State<FinalizeBillScreen> {
-  final _upiIdController = TextEditingController(text: 'merchant@upi');
+  final _upiIdController = TextEditingController(text: '7892886596@axl');
   bool _showUpiQr = false;
   bool _isProcessing = false;
 

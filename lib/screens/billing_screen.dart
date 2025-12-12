@@ -22,14 +22,16 @@ class _BillingScreenState extends State<BillingScreen> {
   Future<double?> _showQuantityDialog(Product product) async {
     final bool allowDecimal = ProductUnits.supportsDecimal(product.unit);
     final TextEditingController controller = TextEditingController(text: '1');
+    final scaffoldContext = context; // Capture the context that has Scaffold
 
     return showDialog<double>(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext dialogContext) {
         double quantity = 1.0;
-        
+
         return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
+          builder: (BuildContext _, StateSetter setState) {
             return AlertDialog(
               title: const Text('Enter Quantity'),
               content: Column(
@@ -116,16 +118,20 @@ class _BillingScreenState extends State<BillingScreen> {
               ),
               actions: [
                 TextButton(
-                  onPressed: () => Navigator.pop(dialogContext),
+                  onPressed: () {
+                    FocusScope.of(dialogContext).unfocus();
+                    Navigator.of(dialogContext).pop(null);
+                  },
                   child: const Text('Cancel'),
                 ),
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     final qty = double.tryParse(controller.text) ?? 1.0;
-                    if (qty <= 0 || qty > product.quantity) {
-                      return;
+                    FocusScope.of(dialogContext).unfocus();
+                    await Future.delayed(const Duration(milliseconds: 100));
+                    if (dialogContext.mounted) {
+                      Navigator.of(dialogContext).pop(qty);
                     }
-                    Navigator.pop(dialogContext, qty);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
@@ -155,6 +161,27 @@ class _BillingScreenState extends State<BillingScreen> {
           // Show quantity dialog for scanned product
           final quantity = await _showQuantityDialog(product);
           if (quantity != null && mounted) {
+            // Validate quantity
+            if (quantity <= 0) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Please enter a valid quantity'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+              return;
+            }
+            if (quantity > product.quantity) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                      'Only ${product.quantity} ${product.unit} available'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+              return;
+            }
+
             context
                 .read<BillingProvider>()
                 .addToCart(product, quantity: quantity);
@@ -187,6 +214,27 @@ class _BillingScreenState extends State<BillingScreen> {
       // Show quantity dialog
       final quantity = await _showQuantityDialog(product);
       if (quantity != null && mounted) {
+        // Validate quantity
+        if (quantity <= 0) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Please enter a valid quantity'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+        if (quantity > product.quantity) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content:
+                  Text('Only ${product.quantity} ${product.unit} available'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+
         context.read<BillingProvider>().addToCart(product, quantity: quantity);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
