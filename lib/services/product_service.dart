@@ -45,7 +45,7 @@ class ProductService {
     return _box?.values.where((p) => p.isLowStock).toList() ?? [];
   }
 
-  Future<void> updateQuantity(String productId, int quantityChange) async {
+  Future<void> updateQuantity(String productId, double quantityChange) async {
     final product = _box?.get(productId);
     if (product != null) {
       product.quantity += quantityChange;

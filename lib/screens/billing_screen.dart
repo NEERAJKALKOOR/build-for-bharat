@@ -7,6 +7,7 @@ import '../models/product.dart';
 import 'barcode_scanner_screen.dart';
 import 'billing_cart_screen.dart';
 import 'sales_history_screen.dart';
+import '../constants/product_units.dart';
 
 class BillingScreen extends StatefulWidget {
   const BillingScreen({Key? key}) : super(key: key);
@@ -18,11 +19,12 @@ class BillingScreen extends StatefulWidget {
 class _BillingScreenState extends State<BillingScreen> {
   String _searchQuery = '';
 
-  Future<int?> _showQuantityDialog(Product product) async {
+  Future<double?> _showQuantityDialog(Product product) async {
+    final bool allowDecimal = ProductUnits.supportsDecimal(product.unit);
     final TextEditingController controller = TextEditingController(text: '1');
-    int quantity = 1;
+    double quantity = 1.0;
 
-    return showDialog<int>(
+    return showDialog<double>(
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
@@ -35,24 +37,30 @@ class _BillingScreenState extends State<BillingScreen> {
                 children: [
                   Text(
                     product.name,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                   const SizedBox(height: 8),
-                  Text('Price: ₹${product.price.toStringAsFixed(2)} / ${product.unit}'),
+                  Text(
+                      'Price: ₹${product.price.toStringAsFixed(2)} / ${product.unit}'),
                   Text(
                     'Available Stock: ${product.quantity} ${product.unit}',
                     style: TextStyle(
-                      color: product.quantity < 10 ? Colors.orange : Colors.green,
+                      color:
+                          product.quantity < 10 ? Colors.orange : Colors.green,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 16),
                   TextField(
                     controller: controller,
-                    keyboardType: TextInputType.number,
+                    keyboardType:
+                        TextInputType.numberWithOptions(decimal: allowDecimal),
                     autofocus: true,
                     decoration: InputDecoration(
-                      labelText: 'Quantity',
+                      labelText: allowDecimal
+                          ? 'Quantity (decimal allowed)'
+                          : 'Quantity',
                       border: const OutlineInputBorder(),
                       suffixIcon: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -60,11 +68,15 @@ class _BillingScreenState extends State<BillingScreen> {
                           IconButton(
                             icon: const Icon(Icons.remove_circle_outline),
                             onPressed: () {
-                              int current = int.tryParse(controller.text) ?? 1;
-                              if (current > 1) {
+                              double current =
+                                  double.tryParse(controller.text) ?? 1.0;
+                              double decrement = allowDecimal ? 0.1 : 1.0;
+                              if (current > decrement) {
                                 setState(() {
-                                  quantity = current - 1;
-                                  controller.text = quantity.toString();
+                                  quantity = current - decrement;
+                                  controller.text = allowDecimal
+                                      ? quantity.toStringAsFixed(2)
+                                      : quantity.toInt().toString();
                                 });
                               }
                             },
@@ -72,11 +84,15 @@ class _BillingScreenState extends State<BillingScreen> {
                           IconButton(
                             icon: const Icon(Icons.add_circle_outline),
                             onPressed: () {
-                              int current = int.tryParse(controller.text) ?? 1;
+                              double current =
+                                  double.tryParse(controller.text) ?? 1.0;
+                              double increment = allowDecimal ? 0.1 : 1.0;
                               if (current < product.quantity) {
                                 setState(() {
-                                  quantity = current + 1;
-                                  controller.text = quantity.toString();
+                                  quantity = current + increment;
+                                  controller.text = allowDecimal
+                                      ? quantity.toStringAsFixed(2)
+                                      : quantity.toInt().toString();
                                 });
                               }
                             },
@@ -85,12 +101,12 @@ class _BillingScreenState extends State<BillingScreen> {
                       ),
                     ),
                     onChanged: (value) {
-                      quantity = int.tryParse(value) ?? 1;
+                      quantity = double.tryParse(value) ?? 1.0;
                     },
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Total: ₹${(product.price * (int.tryParse(controller.text) ?? 1)).toStringAsFixed(2)}',
+                    'Total: ₹${(product.price * (double.tryParse(controller.text) ?? 1.0)).toStringAsFixed(2)}',
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -106,7 +122,7 @@ class _BillingScreenState extends State<BillingScreen> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    int qty = int.tryParse(controller.text) ?? 1;
+                    double qty = double.tryParse(controller.text) ?? 1.0;
                     if (qty <= 0) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
@@ -117,7 +133,8 @@ class _BillingScreenState extends State<BillingScreen> {
                     } else if (qty > product.quantity) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('Only ${product.quantity} items available in stock'),
+                          content: Text(
+                              'Only ${product.quantity} ${product.unit} available in stock'),
                           backgroundColor: Colors.red,
                         ),
                       );
@@ -153,7 +170,9 @@ class _BillingScreenState extends State<BillingScreen> {
           // Show quantity dialog for scanned product
           final quantity = await _showQuantityDialog(product);
           if (quantity != null && mounted) {
-            context.read<BillingProvider>().addToCart(product, quantity: quantity);
+            context
+                .read<BillingProvider>()
+                .addToCart(product, quantity: quantity);
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text('${product.name} x$quantity added to cart'),
@@ -163,12 +182,16 @@ class _BillingScreenState extends State<BillingScreen> {
           }
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Product out of stock'), backgroundColor: Colors.red),
+            const SnackBar(
+                content: Text('Product out of stock'),
+                backgroundColor: Colors.red),
           );
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Product not found in inventory'), backgroundColor: Colors.red),
+          const SnackBar(
+              content: Text('Product not found in inventory'),
+              backgroundColor: Colors.red),
         );
       }
     }
@@ -190,7 +213,8 @@ class _BillingScreenState extends State<BillingScreen> {
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Out of stock'), backgroundColor: Colors.red),
+        const SnackBar(
+            content: Text('Out of stock'), backgroundColor: Colors.red),
       );
     }
   }
@@ -237,11 +261,15 @@ class _BillingScreenState extends State<BillingScreen> {
                         children: [
                           Text(
                             'Items: $itemCount',
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),
                           ),
                           Text(
                             'Total: ${currencyFormat.format(total)}',
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.orange),
+                            style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.orange),
                           ),
                         ],
                       ),
@@ -259,7 +287,6 @@ class _BillingScreenState extends State<BillingScreen> {
               );
             },
           ),
-          
           Padding(
             padding: const EdgeInsets.all(16),
             child: ElevatedButton.icon(
@@ -271,19 +298,19 @@ class _BillingScreenState extends State<BillingScreen> {
               ),
             ),
           ),
-
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: TextField(
               decoration: InputDecoration(
                 hintText: 'Search products...',
                 prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
               ),
-              onChanged: (value) => setState(() => _searchQuery = value.toLowerCase()),
+              onChanged: (value) =>
+                  setState(() => _searchQuery = value.toLowerCase()),
             ),
           ),
-
           const Padding(
             padding: EdgeInsets.all(16),
             child: Align(
@@ -294,23 +321,27 @@ class _BillingScreenState extends State<BillingScreen> {
               ),
             ),
           ),
-
           Expanded(
             child: Consumer<InventoryProvider>(
               builder: (context, inventory, _) {
-                var products = inventory.products.where((p) => p.quantity > 0).toList();
+                var products =
+                    inventory.products.where((p) => p.quantity > 0).toList();
 
                 if (_searchQuery.isNotEmpty) {
-                  products = products.where((p) => 
-                    p.name.toLowerCase().contains(_searchQuery) ||
-                    (p.barcode?.toLowerCase().contains(_searchQuery) ?? false)
-                  ).toList();
+                  products = products
+                      .where((p) =>
+                          p.name.toLowerCase().contains(_searchQuery) ||
+                          (p.barcode?.toLowerCase().contains(_searchQuery) ??
+                              false))
+                      .toList();
                 }
 
                 if (products.isEmpty) {
                   return Center(
                     child: Text(
-                      _searchQuery.isNotEmpty ? 'No products found' : 'No products in stock',
+                      _searchQuery.isNotEmpty
+                          ? 'No products found'
+                          : 'No products in stock',
                       style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                     ),
                   );
@@ -360,14 +391,16 @@ class _BillingScreenState extends State<BillingScreen> {
               const SizedBox(height: 8),
               Text(
                 product.name,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 4),
               Text(
                 '${currencyFormat.format(product.price)} / ${product.unit}',
-                style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                    color: Colors.green, fontWeight: FontWeight.bold),
               ),
               Text(
                 'Stock: ${product.quantity} ${product.unit}',

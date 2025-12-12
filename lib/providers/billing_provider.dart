@@ -16,7 +16,7 @@ class BillingProvider with ChangeNotifier {
   
   double get cartTotal => _currentCart.fold(0, (sum, item) => sum + item.total);
 
-  void addToCart(Product product, {int quantity = 1}) {
+  void addToCart(Product product, {double quantity = 1.0}) {
     final existingIndex = _currentCart.indexWhere((item) => item.productId == product.id);
     
     if (existingIndex >= 0) {
@@ -33,7 +33,7 @@ class BillingProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void updateCartItemQuantity(int index, int quantity) {
+  void updateCartItemQuantity(int index, double quantity) {
     if (quantity <= 0) {
       _currentCart.removeAt(index);
     } else {

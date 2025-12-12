@@ -17,7 +17,7 @@ class Product extends HiveObject {
   double price;
 
   @HiveField(4)
-  int quantity;
+  double quantity;
 
   @HiveField(5)
   int threshold;
@@ -67,7 +67,7 @@ class Product extends HiveObject {
         name: json['name'] as String,
         barcode: json['barcode'] as String?,
         price: (json['price'] as num).toDouble(),
-        quantity: json['quantity'] as int,
+        quantity: (json['quantity'] as num).toDouble(),
         threshold: json['threshold'] as int,
         imageUrl: json['imageUrl'] as String?,
         brand: json['brand'] as String?,
@@ -80,7 +80,7 @@ class Product extends HiveObject {
     String? name,
     String? barcode,
     double? price,
-    int? quantity,
+    double? quantity,
     int? threshold,
     String? imageUrl,
     String? brand,

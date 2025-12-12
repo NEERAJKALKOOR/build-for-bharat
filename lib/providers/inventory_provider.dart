@@ -36,7 +36,7 @@ class InventoryProvider with ChangeNotifier {
   }
 
   Future<void> updateQuantity(String productId, int change) async {
-    await _productService.updateQuantity(productId, change);
+    await _productService.updateQuantity(productId, change.toDouble());
     notifyListeners();
   }
 

@@ -92,7 +92,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       name: _nameController.text.trim(),
       barcode: _barcodeController.text.trim().isEmpty ? null : _barcodeController.text.trim(),
       price: double.parse(_priceController.text),
-      quantity: int.parse(_quantityController.text),
+      quantity: double.parse(_quantityController.text),
       threshold: int.parse(_thresholdController.text),
       imageUrl: _imageUrl,
       brand: _brandController.text.trim().isEmpty ? null : _brandController.text.trim(),
@@ -203,11 +203,13 @@ class _AddProductScreenState extends State<AddProductScreen> {
                             labelText: 'Quantity *',
                             prefixIcon: Icon(Icons.inventory),
                           ),
-                          keyboardType: TextInputType.number,
-                          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+                          ],
                           validator: (v) {
                             if (v?.trim().isEmpty ?? true) return 'Required';
-                            if (int.tryParse(v!) == null) return 'Invalid';
+                            if (double.tryParse(v!) == null) return 'Invalid';
                             return null;
                           },
                         ),

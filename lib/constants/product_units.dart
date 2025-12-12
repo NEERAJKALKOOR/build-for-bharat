@@ -32,7 +32,21 @@ class ProductUnits {
     'slice': 'slice',
   };
 
+  // Units that support decimal/fractional quantities
+  static const List<String> decimalUnits = [
+    'kg',
+    'g',
+    'mg',
+    'L',
+    'ml',
+    'meter',
+  ];
+
   static List<String> get units => unitsMap.keys.toList();
+
+  static bool supportsDecimal(String unit) {
+    return decimalUnits.contains(unit);
+  }
 
   static String getDisplayName(String unit) {
     final fullForm = unitsMap[unit];

@@ -14,7 +14,7 @@ class BillItem {
   double price;
 
   @HiveField(3)
-  int quantity;
+  double quantity;
 
   @HiveField(4)
   String unit;
@@ -41,7 +41,7 @@ class BillItem {
         productId: json['productId'] as String,
         name: json['name'] as String,
         price: (json['price'] as num).toDouble(),
-        quantity: json['quantity'] as int,
+        quantity: (json['quantity'] as num).toDouble(),
         unit: json['unit'] as String? ?? 'piece',
       );
 }

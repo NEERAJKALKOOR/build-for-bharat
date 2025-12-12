@@ -20,7 +20,7 @@ class BillItemAdapter extends TypeAdapter<BillItem> {
       productId: fields[0] as String,
       name: fields[1] as String,
       price: fields[2] as double,
-      quantity: fields[3] as int,
+      quantity: fields[3] as double,
       unit: fields[4] as String,
     );
   }

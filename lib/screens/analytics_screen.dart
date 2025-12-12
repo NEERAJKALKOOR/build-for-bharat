@@ -122,7 +122,7 @@ class AnalyticsScreen extends StatelessWidget {
             ValueListenableBuilder(
               valueListenable: Hive.box<Bill>('bills').listenable(),
               builder: (context, Box<Bill> box, _) {
-                final productSales = <String, int>{};
+                final productSales = <String, double>{};
                 final productNames = <String, String>{};
 
                 for (final bill in box.values) {

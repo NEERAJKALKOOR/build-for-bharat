@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../providers/billing_provider.dart';
 import 'finalize_bill_screen.dart';
+import '../constants/product_units.dart';
 
 class BillingCartScreen extends StatelessWidget {
   const BillingCartScreen({Key? key}) : super(key: key);
@@ -31,7 +32,8 @@ class BillingCartScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.shopping_cart_outlined, size: 80, color: Colors.grey[400]),
+                  Icon(Icons.shopping_cart_outlined,
+                      size: 80, color: Colors.grey[400]),
                   const SizedBox(height: 16),
                   Text(
                     'Cart is empty',
@@ -62,12 +64,16 @@ class BillingCartScreen extends StatelessWidget {
                                 Expanded(
                                   child: Text(
                                     item.name,
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16),
                                   ),
                                 ),
                                 IconButton(
-                                  icon: const Icon(Icons.delete, color: Colors.red),
-                                  onPressed: () => billing.removeFromCart(index),
+                                  icon: const Icon(Icons.delete,
+                                      color: Colors.red),
+                                  onPressed: () =>
+                                      billing.removeFromCart(index),
                                 ),
                               ],
                             ),
@@ -76,22 +82,28 @@ class BillingCartScreen extends StatelessWidget {
                               children: [
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       GestureDetector(
-                                        onTap: () => _editPrice(context, billing, index, item.price),
+                                        onTap: () => _editPrice(context,
+                                            billing, index, item.price),
                                         child: Row(
                                           children: [
-                                            Text('Price: ${currencyFormat.format(item.price)} / ${item.unit}'),
+                                            Text(
+                                                'Price: ${currencyFormat.format(item.price)} / ${item.unit}'),
                                             const SizedBox(width: 4),
-                                            const Icon(Icons.edit, size: 16, color: Colors.blue),
+                                            const Icon(Icons.edit,
+                                                size: 16, color: Colors.blue),
                                           ],
                                         ),
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
                                         'Subtotal: ${currencyFormat.format(item.total)}',
-                                        style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.green),
                                       ),
                                     ],
                                   ),
@@ -99,23 +111,46 @@ class BillingCartScreen extends StatelessWidget {
                                 Row(
                                   children: [
                                     IconButton(
-                                      icon: const Icon(Icons.remove_circle_outline),
-                                      onPressed: () => billing.updateCartItemQuantity(index, item.quantity - 1),
+                                      icon: const Icon(
+                                          Icons.remove_circle_outline),
+                                      onPressed: () {
+                                        final allowDecimal =
+                                            ProductUnits.supportsDecimal(
+                                                item.unit);
+                                        final decrement =
+                                            allowDecimal ? 0.1 : 1.0;
+                                        billing.updateCartItemQuantity(
+                                            index, item.quantity - decrement);
+                                      },
                                     ),
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 12, vertical: 4),
                                       decoration: BoxDecoration(
                                         border: Border.all(color: Colors.grey),
                                         borderRadius: BorderRadius.circular(4),
                                       ),
                                       child: Text(
-                                        '${item.quantity} ${item.unit}',
-                                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                        ProductUnits.supportsDecimal(item.unit)
+                                            ? '${item.quantity.toStringAsFixed(2)} ${item.unit}'
+                                            : '${item.quantity.toInt()} ${item.unit}',
+                                        style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold),
                                       ),
                                     ),
                                     IconButton(
-                                      icon: const Icon(Icons.add_circle_outline),
-                                      onPressed: () => billing.updateCartItemQuantity(index, item.quantity + 1),
+                                      icon:
+                                          const Icon(Icons.add_circle_outline),
+                                      onPressed: () {
+                                        final allowDecimal =
+                                            ProductUnits.supportsDecimal(
+                                                item.unit);
+                                        final increment =
+                                            allowDecimal ? 0.1 : 1.0;
+                                        billing.updateCartItemQuantity(
+                                            index, item.quantity + increment);
+                                      },
                                     ),
                                   ],
                                 ),
@@ -147,7 +182,8 @@ class BillingCartScreen extends StatelessWidget {
                       children: [
                         const Text(
                           'Total Amount:',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                         Text(
                           currencyFormat.format(billing.cartTotal),
@@ -163,7 +199,8 @@ class BillingCartScreen extends StatelessWidget {
                     ElevatedButton(
                       onPressed: () => Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const FinalizeBillScreen()),
+                        MaterialPageRoute(
+                            builder: (_) => const FinalizeBillScreen()),
                       ),
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size.fromHeight(50),
@@ -181,7 +218,8 @@ class BillingCartScreen extends StatelessWidget {
     );
   }
 
-  void _editPrice(BuildContext context, BillingProvider billing, int index, double currentPrice) {
+  void _editPrice(BuildContext context, BillingProvider billing, int index,
+      double currentPrice) {
     final controller = TextEditingController(text: currentPrice.toString());
 
     showDialog(
