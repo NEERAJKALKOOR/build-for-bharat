@@ -10,6 +10,7 @@ class BarcodeScannerScreen extends StatefulWidget {
 
 class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
   MobileScannerController controller = MobileScannerController();
+  bool _isProcessing = false; // Prevent multiple scans
 
   @override
   void dispose() {
@@ -42,10 +43,13 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
       body: MobileScanner(
         controller: controller,
         onDetect: (capture) {
+          if (_isProcessing) return; // Already processing a barcode
+          
           final List<Barcode> barcodes = capture.barcodes;
           if (barcodes.isNotEmpty) {
             final barcode = barcodes.first.rawValue;
             if (barcode != null) {
+              _isProcessing = true; // Mark as processing
               Navigator.pop(context, barcode);
             }
           }

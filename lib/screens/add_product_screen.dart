@@ -48,27 +48,49 @@ class _AddProductScreenState extends State<AddProductScreen> {
       MaterialPageRoute(builder: (_) => const BarcodeScannerScreen()),
     );
 
-    if (result != null) {
-      _barcodeController.text = result;
+    if (result != null && result.isNotEmpty && mounted) {
+      print('📱 Barcode scanned: $result, widget mounted: $mounted');
+      
+      // Set barcode and loading state immediately
+      setState(() {
+        _barcodeController.text = result;
+        _isLoading = true;
+      });
+      
+      print('🚀 Starting fetch for barcode: $result');
+      
+      // Fetch product details - now widget will stay alive during API call
       await _fetchProductDetails(result);
     }
   }
 
   Future<void> _fetchProductDetails(String barcode) async {
-    setState(() => _isLoading = true);
-
     try {
+      print('🔍 Starting product lookup for barcode: $barcode');
+      
       // Use parallel product lookup service
       final lookupService = ParallelProductLookupService();
       final productData = await lookupService.lookupProduct(barcode);
 
-      if (productData != null && productData.isValid && mounted) {
+      print('📦 Product data received: ${productData?.toString() ?? "null"}');
+
+      if (!mounted) {
+        print('⚠️ Widget unmounted after API call, cannot update UI');
+        return;
+      }
+
+      if (productData != null && productData.isValid) {
         // Autofill fields with data from API
-        _nameController.text = productData.name ?? '';
-        _brandController.text = productData.brand ?? '';
-        _categoryController.text = productData.category ?? '';
-        _imageUrl = productData.imageUrl;
-        _apiSource = productData.source;
+        setState(() {
+          _nameController.text = productData.name ?? '';
+          _brandController.text = productData.brand ?? '';
+          _categoryController.text = productData.category ?? '';
+          _imageUrl = productData.imageUrl;
+          _apiSource = productData.source;
+          _isLoading = false; // Clear loading here after success
+        });
+
+        print('✅ Auto-filled product: ${productData.name}');
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -77,9 +99,16 @@ class _AddProductScreenState extends State<AddProductScreen> {
             duration: const Duration(seconds: 2),
           ),
         );
-      } else if (mounted) {
+      } else {
         // No valid product found from any API
         _apiSource = null;
+        
+        print('⚠️ No valid product found for barcode: $barcode');
+        
+        setState(() {
+          _isLoading = false;
+        });
+        
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
@@ -90,7 +119,13 @@ class _AddProductScreenState extends State<AddProductScreen> {
         );
       }
     } catch (e) {
+      print('❌ Error in _fetchProductDetails: $e');
+      
       if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error fetching product details: ${e.toString()}'),
@@ -98,8 +133,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
           ),
         );
       }
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -140,19 +173,32 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Add Product'),
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
+    return WillPopScope(
+      onWillPop: () async {
+        if (_isLoading) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Please wait while fetching product details...'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+          return false; // Prevent navigation
+        }
+        return true; // Allow navigation
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Add Product'),
+        ),
+        body: Stack(
+        children: [
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
                     Card(
                       child: Padding(
                         padding: const EdgeInsets.all(16),
@@ -293,6 +339,32 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 ),
               ),
             ),
+          // Loading overlay - shows on top without blocking the form
+          if (_isLoading)
+            Container(
+              color: Colors.black26,
+              child: const Center(
+                child: Card(
+                  child: Padding(
+                    padding: EdgeInsets.all(20),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(height: 16),
+                        Text(
+                          'Fetching product details...',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+      ),
     );
   }
 }
