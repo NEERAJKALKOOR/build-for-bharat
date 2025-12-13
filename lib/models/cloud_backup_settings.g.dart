@@ -1,14 +1,8 @@
-// GENERATED CODE - DO NOT MODIFY BY HAND
-
 part of 'cloud_backup_settings.dart';
-
-// **************************************************************************
-// TypeAdapterGenerator
-// **************************************************************************
 
 class CloudBackupSettingsAdapter extends TypeAdapter<CloudBackupSettings> {
   @override
-  final int typeId = 5;
+  final int typeId = 20;
 
   @override
   CloudBackupSettings read(BinaryReader reader) {
@@ -18,24 +12,30 @@ class CloudBackupSettingsAdapter extends TypeAdapter<CloudBackupSettings> {
     };
     return CloudBackupSettings(
       cloudBackupEnabled: fields[0] as bool,
-      lastBackupTime: fields[1] as DateTime?,
-      userEmail: fields[2] as String?,
-      userId: fields[3] as String?,
+      authToken: fields[1] as String?,
+      refreshToken: fields[2] as String?,
+      lastBackupTime: fields[3] as DateTime?,
+      userId: fields[4] as String?,
+      userEmail: fields[5] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, CloudBackupSettings obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.cloudBackupEnabled)
       ..writeByte(1)
-      ..write(obj.lastBackupTime)
+      ..write(obj.authToken)
       ..writeByte(2)
-      ..write(obj.userEmail)
+      ..write(obj.refreshToken)
       ..writeByte(3)
-      ..write(obj.userId);
+      ..write(obj.lastBackupTime)
+      ..writeByte(4)
+      ..write(obj.userId)
+      ..writeByte(5)
+      ..write(obj.userEmail);
   }
 
   @override
