@@ -42,7 +42,15 @@ class ProductService {
   }
 
   List<Product> getLowStockProducts() {
-    return _box?.values.where((p) => p.isLowStock).toList() ?? [];
+    return _box?.values.where((p) {
+      // ignore: unnecessary_null_comparison
+      if (p == null) return false;
+      try {
+        return p.isLowStock;
+      } catch (e) {
+        return false;
+      }
+    }).toList() ?? [];
   }
 
   Future<void> updateQuantity(String productId, double quantityChange) async {

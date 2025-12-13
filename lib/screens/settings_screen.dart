@@ -174,10 +174,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       leading: Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: AppTheme.primaryColor.withOpacity(0.1),
+                          color: AppTheme.primaryBlue.withOpacity(0.1),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.cloud_download, color: AppTheme.primaryColor, size: 20),
+                        child: const Icon(Icons.cloud_download, color: AppTheme.primaryBlue, size: 20),
                       ),
                       title: Text(dateStr, style: const TextStyle(fontWeight: FontWeight.w600)),
                       subtitle: Text(file.name, maxLines: 1, overflow: TextOverflow.ellipsis),
@@ -223,7 +223,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(children: [const Icon(Icons.check_circle, color: Colors.white, size: 20), const SizedBox(width: 8), Text(message)]),
-        backgroundColor: AppTheme.primaryColor,
+        backgroundColor: AppTheme.primaryBlue,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
@@ -233,16 +233,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
+      backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: AppTheme.backgroundColor,
+        backgroundColor: AppTheme.backgroundLight,
         foregroundColor: Colors.black,
         title: const Text('Settings', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
         centerTitle: true,
       ),
       body: _isLoading 
-        ? const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor)) 
+        ? const Center(child: CircularProgressIndicator(color: AppTheme.primaryBlue)) 
         : SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -325,22 +325,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
            children: [
              SwitchListTile(
                contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-               activeColor: AppTheme.primaryColor,
+               activeColor: AppTheme.primaryBlue,
                title: const Text('Cloud Backup', style: TextStyle(fontWeight: FontWeight.w600)),
                subtitle: Text(
                  isSignedOn ? 'Active • $displayEmail' : 'Disabled',
                  style: TextStyle(
-                   color: isSignedOn ? AppTheme.primaryColor : Colors.grey,
+                   color: isSignedOn ? AppTheme.primaryBlue : Colors.grey,
                    fontSize: 13,
                  ),
                ),
                secondary: Container(
                  padding: const EdgeInsets.all(8),
                  decoration: BoxDecoration(
-                   color: enabled ? AppTheme.primaryColor.withOpacity(0.1) : Colors.grey.withOpacity(0.1),
+                   color: enabled ? AppTheme.primaryBlue.withOpacity(0.1) : Colors.grey.withOpacity(0.1),
                    shape: BoxShape.circle,
                  ),
-                 child: Icon(Icons.cloud_queue, color: enabled ? AppTheme.primaryColor : Colors.grey),
+                 child: Icon(Icons.cloud_queue, color: enabled ? AppTheme.primaryBlue : Colors.grey),
                ),
                value: enabled,
                onChanged: _toggleBackup,
@@ -457,7 +457,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required String title,
     String? subtitle,
     VoidCallback? onTap,
-    Color iconColor = AppTheme.primaryColor,
+    Color iconColor = AppTheme.primaryBlue,
     bool showArrow = true,
   }) {
     return ListTile(
@@ -491,22 +491,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: isPrimary ? AppTheme.primaryColor : Colors.white,
+            color: isPrimary ? AppTheme.primaryBlue : Colors.white,
             borderRadius: BorderRadius.circular(12),
             border: isPrimary ? null : Border.all(color: Colors.grey[200]!, width: 1.5),
             boxShadow: isPrimary 
-              ? [BoxShadow(color: AppTheme.primaryColor.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4))]
+              ? [BoxShadow(color: AppTheme.primaryBlue.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4))]
               : null,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 18, color: isPrimary ? Colors.white : AppTheme.primaryColor),
+              Icon(icon, size: 18, color: isPrimary ? Colors.white : AppTheme.primaryBlue),
               const SizedBox(width: 8),
               Text(
                 label,
                 style: TextStyle(
-                  color: isPrimary ? Colors.white : AppTheme.primaryColor,
+                  color: isPrimary ? Colors.white : AppTheme.primaryBlue,
                   fontWeight: FontWeight.w600,
                   fontSize: 14,
                 ),

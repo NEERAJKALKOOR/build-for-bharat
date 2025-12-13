@@ -172,7 +172,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   ? 'OTP resent to ${widget.email}\n(Check console in demo mode)'
                   : 'Failed to resend OTP',
             ),
-            backgroundColor: success ? AppTheme.primaryColor : Colors.red,
+            backgroundColor: success ? AppTheme.primaryBlue : Colors.red,
           ),
         );
 
@@ -197,7 +197,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: AppTheme.primaryColor,
+        backgroundColor: AppTheme.primaryBlue,
         foregroundColor: Colors.white,
         title: const Text('Verify OTP'),
         elevation: 0,
@@ -208,7 +208,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              AppTheme.primaryColor.withOpacity(0.1),
+              AppTheme.primaryBlue.withOpacity(0.1),
               Colors.white,
             ],
           ),
@@ -225,13 +225,13 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     width: 80,
                     height: 80,
                     decoration: BoxDecoration(
-                      color: AppTheme.primaryColor.withOpacity(0.1),
+                      color: AppTheme.primaryBlue.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Icon(
                       Icons.mail_lock_outlined,
                       size: 50,
-                      color: AppTheme.primaryColor,
+                      color: AppTheme.primaryBlue,
                     ),
                   ),
                   const SizedBox(height: 30),
@@ -260,7 +260,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: AppTheme.primaryColor,
+                      color: AppTheme.primaryBlue,
                     ),
                   ),
                   const SizedBox(height: 40),
@@ -296,7 +296,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide(
-                                color: AppTheme.primaryColor,
+                                color: AppTheme.primaryBlue,
                                 width: 2,
                               ),
                             ),
@@ -332,7 +332,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     ),
                     decoration: BoxDecoration(
                       color: _remainingSeconds > 0
-                          ? AppTheme.primaryColor.withOpacity(0.1)
+                          ? AppTheme.primaryBlue.withOpacity(0.1)
                           : Colors.red.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
@@ -343,7 +343,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                           Icons.timer_outlined,
                           size: 20,
                           color: _remainingSeconds > 0
-                              ? AppTheme.primaryColor
+                              ? AppTheme.primaryBlue
                               : Colors.red,
                         ),
                         const SizedBox(width: 8),
@@ -355,7 +355,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
                             color: _remainingSeconds > 0
-                                ? AppTheme.primaryColor
+                                ? AppTheme.primaryBlue
                                 : Colors.red,
                           ),
                         ),
@@ -370,7 +370,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _verifyOtp,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryColor,
+                        backgroundColor: AppTheme.primaryBlue,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
@@ -417,7 +417,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                       style: const TextStyle(fontSize: 16),
                     ),
                     style: TextButton.styleFrom(
-                      foregroundColor: AppTheme.primaryColor,
+                      foregroundColor: AppTheme.primaryBlue,
                     ),
                   ),
                 ],

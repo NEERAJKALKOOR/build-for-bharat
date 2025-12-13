@@ -48,7 +48,7 @@ class _BillingScreenState extends State<BillingScreen> {
                    Container(
                      padding: const EdgeInsets.all(12),
                      decoration: BoxDecoration(
-                       color: AppTheme.backgroundColor,
+                       color: AppTheme.backgroundLight,
                        borderRadius: BorderRadius.circular(12),
                      ),
                      child: Row(
@@ -64,7 +64,7 @@ class _BillingScreenState extends State<BillingScreen> {
                      controller: controller,
                      keyboardType: TextInputType.numberWithOptions(decimal: allowDecimal),
                      textAlign: TextAlign.center,
-                     style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.primaryColor),
+                     style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue),
                      autofocus: true,
                      decoration: InputDecoration(
                        filled: true,
@@ -83,7 +83,7 @@ class _BillingScreenState extends State<BillingScreen> {
                          },
                        ),
                        suffixIcon: IconButton(
-                         icon: const Icon(Icons.add_circle, color: AppTheme.primaryColor),
+                         icon: const Icon(Icons.add_circle, color: AppTheme.primaryBlue),
                          onPressed: () {
                               double current = double.tryParse(controller.text) ?? 1.0;
                               double increment = allowDecimal ? 0.1 : 1.0;
@@ -107,7 +107,7 @@ class _BillingScreenState extends State<BillingScreen> {
                        const Text('Total: ', style: TextStyle(fontSize: 16)),
                        Text(
                          '₹${(product.price * (double.tryParse(controller.text) ?? 1.0)).toStringAsFixed(2)}',
-                         style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.primaryColor),
+                         style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue),
                        ),
                      ],
                    ),
@@ -125,7 +125,7 @@ class _BillingScreenState extends State<BillingScreen> {
                     Navigator.of(dialogContext).pop(qty);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryColor,
+                    backgroundColor: AppTheme.primaryBlue,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
                   child: const Text('ADD TO CART', style: TextStyle(color: Colors.white)),
@@ -188,7 +188,7 @@ class _BillingScreenState extends State<BillingScreen> {
     if(!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(msg),
-      backgroundColor: isError ? Colors.red : AppTheme.primaryColor,
+      backgroundColor: isError ? Colors.red : AppTheme.primaryBlue,
       behavior: SnackBarBehavior.floating,
       duration: const Duration(milliseconds: 1500),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -200,7 +200,7 @@ class _BillingScreenState extends State<BillingScreen> {
     final currencyFormat = NumberFormat.compactSimpleCurrency(locale: 'en_IN');
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
+      backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
         title: const Text('New Bill', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
@@ -229,7 +229,7 @@ class _BillingScreenState extends State<BillingScreen> {
                   child: Container(
                     height: 50,
                     decoration: BoxDecoration(
-                      color: AppTheme.backgroundColor,
+                      color: AppTheme.backgroundLight,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: TextField(
@@ -251,11 +251,11 @@ class _BillingScreenState extends State<BillingScreen> {
                     height: 50,
                     width: 50,
                     decoration: BoxDecoration(
-                      color: AppTheme.primaryColor.withOpacity(0.1),
+                      color: AppTheme.primaryBlue.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppTheme.primaryColor.withOpacity(0.3)),
+                      border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.3)),
                     ),
-                    child: const Icon(Icons.qr_code_scanner, color: AppTheme.primaryColor),
+                    child: const Icon(Icons.qr_code_scanner, color: AppTheme.primaryBlue),
                   ),
                 ),
               ],
@@ -335,12 +335,12 @@ class _BillingScreenState extends State<BillingScreen> {
                       ElevatedButton(
                         onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BillingCartScreen())),
                         style: ElevatedButton.styleFrom(
-                           backgroundColor: AppTheme.primaryColor,
+                           backgroundColor: AppTheme.primaryBlue,
                            foregroundColor: Colors.white,
                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                            elevation: 4,
-                           shadowColor: AppTheme.primaryColor.withOpacity(0.4),
+                           shadowColor: AppTheme.primaryBlue.withOpacity(0.4),
                         ),
                         child: const Row(
                            children: [
@@ -376,13 +376,13 @@ class _BillingScreenState extends State<BillingScreen> {
              Expanded(
                child: Container(
                  decoration: BoxDecoration(
-                    color: AppTheme.primaryColor.withOpacity(0.05),
+                    color: AppTheme.primaryBlue.withOpacity(0.05),
                     borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
                  ),
                  child: Center(
                     child: Text(
                       product.name[0].toUpperCase(),
-                      style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AppTheme.primaryColor.withOpacity(0.4)),
+                      style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue.withOpacity(0.4)),
                     ),
                  ),
                ),
@@ -395,7 +395,7 @@ class _BillingScreenState extends State<BillingScreen> {
                    Text(product.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                    Text(
                      '${format.format(product.price)} / ${product.unit}',
-                     style: const TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.w600, fontSize: 13),
+                     style: const TextStyle(color: AppTheme.primaryBlue, fontWeight: FontWeight.w600, fontSize: 13),
                    ),
                    const SizedBox(height: 4),
                    Row(

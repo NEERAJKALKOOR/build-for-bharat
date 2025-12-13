@@ -40,7 +40,7 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('OTP sent to $email\n(Check console in demo mode)'),
-              backgroundColor: AppTheme.primaryColor,
+              backgroundColor: AppTheme.primaryBlue,
               duration: const Duration(seconds: 4),
             ),
           );
@@ -82,9 +82,9 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              AppTheme.primaryColor.withOpacity(0.8),
-              AppTheme.primaryColor,
-              AppTheme.accentColor,
+              AppTheme.primaryBlue.withOpacity(0.8),
+              AppTheme.primaryBlue,
+              AppTheme.tealAccent,
             ],
           ),
         ),
@@ -115,7 +115,7 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
                       child: Icon(
                         Icons.store,
                         size: 60,
-                        color: AppTheme.primaryColor,
+                        color: AppTheme.primaryBlue,
                       ),
                     ),
                     const SizedBox(height: 30),
@@ -181,7 +181,7 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
                                 hintText: 'your-email@example.com',
                                 prefixIcon: Icon(
                                   Icons.email_outlined,
-                                  color: AppTheme.primaryColor,
+                                  color: AppTheme.primaryBlue,
                                 ),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
@@ -189,7 +189,7 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   borderSide: BorderSide(
-                                    color: AppTheme.primaryColor,
+                                    color: AppTheme.primaryBlue,
                                     width: 2,
                                   ),
                                 ),
@@ -214,7 +214,7 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
                             ElevatedButton(
                               onPressed: _isLoading ? null : _sendOtp,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: AppTheme.primaryColor,
+                                backgroundColor: AppTheme.primaryBlue,
                                 foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(vertical: 16),
                                 shape: RoundedRectangleBorder(

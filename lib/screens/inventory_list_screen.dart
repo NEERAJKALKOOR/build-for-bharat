@@ -8,7 +8,8 @@ import 'edit_product_screen.dart';
 import '../theme/app_theme.dart';
 
 class InventoryListScreen extends StatefulWidget {
-  const InventoryListScreen({Key? key}) : super(key: key);
+  final bool showLowStock;
+  const InventoryListScreen({Key? key, this.showLowStock = false}) : super(key: key);
 
   @override
   State<InventoryListScreen> createState() => _InventoryListScreenState();
@@ -16,22 +17,28 @@ class InventoryListScreen extends StatefulWidget {
 
 class _InventoryListScreenState extends State<InventoryListScreen> {
   String _searchQuery = '';
-  bool _showLowStockOnly = false;
+  late bool _showLowStockOnly;
+
+  @override
+  void initState() {
+    super.initState();
+    _showLowStockOnly = widget.showLowStock;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
+      backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
         title: const Text('Inventory', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-        backgroundColor: AppTheme.backgroundColor,
+        backgroundColor: AppTheme.backgroundLight,
         elevation: 0,
         centerTitle: true,
         actions: [
           IconButton(
             icon: Icon(
               _showLowStockOnly ? Icons.filter_alt : Icons.filter_alt_outlined,
-              color: _showLowStockOnly ? AppTheme.primaryColor : Colors.black87,
+              color: _showLowStockOnly ? AppTheme.primaryBlue : Colors.black87,
             ),
             onPressed: () => setState(() => _showLowStockOnly = !_showLowStockOnly),
             tooltip: 'Show low stock only',
@@ -128,7 +135,7 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
           context,
           MaterialPageRoute(builder: (_) => const AddProductScreen()),
         ),
-        backgroundColor: AppTheme.primaryColor,
+        backgroundColor: AppTheme.primaryBlue,
         elevation: 4,
         icon: const Icon(Icons.add_rounded, color: Colors.white),
         label: const Text('Add Product', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
@@ -145,7 +152,7 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: const [BoxShadow(color: Color(0x05000000), blurRadius: 10, offset: Offset(0, 2))],
-        border: isLowStock ? Border.all(color: AppTheme.errorColor.withOpacity(0.3)) : null,
+        border: isLowStock ? Border.all(color: AppTheme.error.withOpacity(0.3)) : null,
       ),
       child: Material(
         color: Colors.transparent,
@@ -164,14 +171,14 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
                   width: 56,
                   height: 56,
                   decoration: BoxDecoration(
-                    color: isLowStock ? AppTheme.errorColor.withOpacity(0.1) : AppTheme.primaryColor.withOpacity(0.08),
+                    color: isLowStock ? AppTheme.error.withOpacity(0.1) : AppTheme.primaryBlue.withOpacity(0.08),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Center(
                     child: Text(
                       product.name.isNotEmpty ? product.name[0].toUpperCase() : '?',
                       style: TextStyle(
-                        color: isLowStock ? AppTheme.errorColor : AppTheme.primaryColor,
+                        color: isLowStock ? AppTheme.error : AppTheme.primaryBlue,
                         fontWeight: FontWeight.bold,
                         fontSize: 24,
                       ),
@@ -211,13 +218,13 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: isLowStock ? AppTheme.errorColor.withOpacity(0.1) : Colors.green.withOpacity(0.1),
+                        color: isLowStock ? AppTheme.error.withOpacity(0.1) : Colors.green.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
                         'Stock: ${product.quantity}',
                         style: TextStyle(
-                          color: isLowStock ? AppTheme.errorColor : Colors.green[700],
+                          color: isLowStock ? AppTheme.error : Colors.green[700],
                           fontWeight: FontWeight.bold,
                           fontSize: 12,
                         ),
