@@ -34,8 +34,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final session = await SessionManager().getCurrentSession();
     if (session != null && session.isValid) {
       _backupService.setUserEmail(session.email);
-       // Auto-enable if session exists and not explicitly disabled? 
-       // Or just let user toggle. We will update UI to show "Signed in as..."
     }
     
     _loadBackupSettings();
@@ -57,13 +55,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _toggleBackup(bool value) async {
     if (_backupSettings == null) return;
     
-    // Access Session
     final session = await SessionManager().getCurrentSession();
     final String? userEmail = session?.email ?? _backupSettings?.userEmail;
 
-    // If enabling, ensure we have an email (checked via Session usually)
     if (value && userEmail == null) {
-       // Only show auth dialog if NO local session exists
        _showAuthDialog();
     } else {
        if (value && userEmail != null) {
@@ -87,6 +82,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(controller: emailCtrl, decoration: const InputDecoration(labelText: 'Email')),
+            const SizedBox(height: 12),
             TextField(controller: passCtrl, decoration: const InputDecoration(labelText: 'Password'), obscureText: true),
           ],
         ),
@@ -100,12 +96,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Navigator.pop(ctx);
               setState(() => _isLoading = true);
               try {
-                // Try sign in, if fails, try sign up
                 try {
                   await _backupService.signIn(emailCtrl.text.trim(), passCtrl.text.trim());
                 } catch (e) {
-                   // If sign in fails, maybe account doesn't exist? Try sign up.
-                   // Actually, safer to let user choose. But for quick integration:
                    await _backupService.signUp(emailCtrl.text.trim(), passCtrl.text.trim());
                 }
               } catch (e) {
@@ -114,7 +107,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 setState(() => _isLoading = false);
               }
             },
-            child: const Text('CONNECT / LOGIN'),
+            child: const Text('CONNECT'),
           )
         ],
       ),
@@ -134,9 +127,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     try {
       await _backupService.backupNow();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('✅ Backup successful')),
-        );
+        _showSuccess('✅ Backup successful');
       }
     } catch (e) {
       _showError(e.toString());
@@ -154,41 +145,49 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (!mounted) return;
 
       if (files.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Scanning... No backups found.')),
-        );
+        _showSuccess('No backups found');
         return;
       }
 
-      // Show selection dialog
-      final selected = await showDialog<FileObject>(
+      final selected = await showModalBottomSheet<FileObject>(
         context: context,
-        builder: (ctx) => AlertDialog(
-          title: const Text('Restore from Backup'),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: files.length,
-              itemBuilder: (ctx, i) {
-                final file = files[i];
-                final dateStr = DateFormat('MMM d, y HH:mm').format(DateTime.parse(file.createdAt!));
-                // Size might not be directly available on FileObject in older versions, checking
-                // Assuming standard FileObject
-                final name = file.name;
-                
-                return ListTile(
-                  leading: const Icon(Icons.description, color: AppTheme.primaryColor),
-                  title: Text(dateStr),
-                  subtitle: Text(name),
-                  onTap: () => Navigator.pop(ctx, file),
-                );
-              },
-            ),
+        backgroundColor: Colors.white,
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+        builder: (ctx) => Container(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Restore from Backup', style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: 16),
+              Expanded(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: files.length,
+                  itemBuilder: (ctx, i) {
+                    final file = files[i];
+                    final dateStr = DateFormat('MMM d, y • HH:mm').format(DateTime.parse(file.createdAt!));
+                    
+                    return ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppTheme.primaryColor.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.cloud_download, color: AppTheme.primaryColor, size: 20),
+                      ),
+                      title: Text(dateStr, style: const TextStyle(fontWeight: FontWeight.w600)),
+                      subtitle: Text(file.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+                      onTap: () => Navigator.pop(ctx, file),
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
-          actions: [
-             TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('CANCEL')),
-          ],
         ),
       );
 
@@ -196,7 +195,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
          setState(() => _isLoading = true);
          await _backupService.restoreBackup(selected.name);
          if (mounted) {
-            _showSuccess('Restore completed successfully. Restart requires reloading app data.');
+            _showSuccess('Restore complete. Please restart app.');
          }
       }
 
@@ -210,109 +209,110 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void _showError(String message) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error: $message'), backgroundColor: Colors.red),
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red.shade400,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
     );
   }
 
   void _showSuccess(String message) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.green),
+      SnackBar(
+        content: Row(children: [const Icon(Icons.check_circle, color: Colors.white, size: 20), const SizedBox(width: 8), Text(message)]),
+        backgroundColor: AppTheme.primaryColor,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
-        title: const Text('Settings'),
+        elevation: 0,
+        backgroundColor: AppTheme.backgroundColor,
+        foregroundColor: Colors.black,
+        title: const Text('Settings', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+        centerTitle: true,
       ),
       body: _isLoading 
-        ? const Center(child: CircularProgressIndicator()) 
-        : ListView(
-        children: [
-          _buildCloudBackupSection(),
-          const Divider(),
-          const SizedBox(height: 16),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              'Data Management',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ? const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor)) 
+        : SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildSectionHeader('Cloud Sync'),
+                _buildCloudBackupCard(),
+                
+                const SizedBox(height: 24),
+                _buildSectionHeader('Data Management'),
+                _buildDataManagementCard(),
+
+                const SizedBox(height: 24),
+                _buildSectionHeader('Account'),
+                _buildAccountCard(),
+
+                const SizedBox(height: 24),
+                _buildSectionHeader('App Info'),
+                _buildAppInfoCard(),
+                
+                const SizedBox(height: 40),
+                Center(
+                  child: Text(
+                    'BharatStore v1.0.0',
+                    style: TextStyle(color: Colors.grey[400], fontSize: 12),
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ],
             ),
           ),
-          const SizedBox(height: 8),
-          ListTile(
-            leading: const Icon(Icons.share, color: AppTheme.primaryColor),
-            title: const Text('Share & Export'),
-            subtitle: const Text('Export inventory and bills data'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const ExportImportScreen()),
-              );
-            },
-          ),
-          const Divider(),
-          const SizedBox(height: 24),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              'Account',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-          ),
-          const SizedBox(height: 8),
-          ListTile(
-            leading: const Icon(Icons.logout, color: Colors.orange),
-            title: const Text('Sign Out'),
-            subtitle: const Text('End your session'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => _confirmLogout(context),
-          ),
-          const Divider(),
-          const SizedBox(height: 24),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              'About',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-          ),
-          const SizedBox(height: 8),
-          const ListTile(
-            leading: Icon(Icons.info_outline),
-            title: Text('BharatStore'),
-            subtitle:
-                Text('Version 1.0.0\nOffline Inventory, Billing & Analytics'),
-          ),
-          const Divider(),
-          const ListTile(
-            leading: Icon(Icons.storage),
-            title: Text('Storage'),
-            subtitle: Text('All data stored locally on device using Hive'),
-          ),
-          const ListTile(
-            leading: Icon(Icons.cloud_off),
-            title: Text('Offline First'),
-            subtitle: Text('No cloud, no servers, zero maintenance cost'),
-          ),
-        ],
+    );
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 8),
+      child: Text(
+        title.toUpperCase(),
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1.2,
+          color: Colors.grey[600],
+        ),
       ),
     );
   }
 
-  Widget _buildCloudBackupSection() {
+  Widget _buildCard({required List<Widget> children}) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 15, offset: const Offset(0, 5)),
+        ],
+      ),
+      child: Column(
+        children: children,
+      ),
+    );
+  }
+
+  Widget _buildCloudBackupCard() {
     final enabled = _backupSettings?.cloudBackupEnabled ?? false;
     final lastBackup = _backupSettings?.lastBackupTime != null 
        ? DateFormat('MMM d, HH:mm').format(_backupSettings!.lastBackupTime!)
        : 'Never';
-    // Get effective email from service, fallback to settings
     final userEmail = _backupService.settings?.userId ?? _backupService.settings?.userEmail; 
-    // Note: In our Logic, we use userId field or manualEmail. 
-    // Let's rely on what the service reports as its 'effective' ID if possible, 
-    // or deeper, check SessionManager directly for UI status.
     
     return FutureBuilder<UserSession?>(
       future: SessionManager().getCurrentSession(),
@@ -321,109 +321,218 @@ class _SettingsScreenState extends State<SettingsScreen> {
          final displayEmail = sessionEmail ?? userEmail;
          final bool isSignedOn = displayEmail != null;
 
-         return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 16),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                'CLOUD BACKUP (SUPABASE)',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.primaryColor),
-              ),
-            ),
-            const SizedBox(height: 8),
-            SwitchListTile(
-              title: const Text('Enable Cloud Backup'),
-              subtitle: Text(isSignedOn ? 'Backup as $displayEmail' : 'Backup your data to Supabase'),
-              value: enabled,
-              onChanged: _toggleBackup,
-              activeColor: AppTheme.primaryColor,
-            ),
-            
-            // Login button if not signed in via App logic
-            if (!isSignedOn)
-               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: ElevatedButton.icon(
-                  icon: const Icon(Icons.login),
-                  label: const Text('Log in with Supabase'),
-                  onPressed: _showAuthDialog,
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 44),
-                  ),
-                ),
-              ),
-
-            if (enabled && isSignedOn) ...[
-               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Row(
-                   children: [
-                     Expanded(
-                       child: ElevatedButton.icon(
-                          icon: const Icon(Icons.cloud_upload),
-                          label: const Text('Backup Now'),
-                          onPressed: _handleBackupNow,
-                          style: ElevatedButton.styleFrom(
-                             backgroundColor: AppTheme.primaryColor,
-                             foregroundColor: Colors.white,
-                          ),
-                       ),
-                     ),
-                     const SizedBox(width: 12),
-                     Expanded(
-                       child: OutlinedButton.icon(
-                          icon: const Icon(Icons.cloud_download),
-                          label: const Text('Restore'),
-                          onPressed: _handleRestore,
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: AppTheme.primaryColor,
-                          ),
-                       ),
-                     ),
-                   ],
-                ),
+         return _buildCard(
+           children: [
+             SwitchListTile(
+               contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+               activeColor: AppTheme.primaryColor,
+               title: const Text('Cloud Backup', style: TextStyle(fontWeight: FontWeight.w600)),
+               subtitle: Text(
+                 isSignedOn ? 'Active • $displayEmail' : 'Disabled',
+                 style: TextStyle(
+                   color: isSignedOn ? AppTheme.primaryColor : Colors.grey,
+                   fontSize: 13,
+                 ),
                ),
+               secondary: Container(
+                 padding: const EdgeInsets.all(8),
+                 decoration: BoxDecoration(
+                   color: enabled ? AppTheme.primaryColor.withOpacity(0.1) : Colors.grey.withOpacity(0.1),
+                   shape: BoxShape.circle,
+                 ),
+                 child: Icon(Icons.cloud_queue, color: enabled ? AppTheme.primaryColor : Colors.grey),
+               ),
+               value: enabled,
+               onChanged: _toggleBackup,
+             ),
+             
+             if (enabled && isSignedOn) ...[
+               const Divider(height: 1, indent: 20, endIndent: 20),
                Padding(
-                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                 child: Row(
-                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+                 child: Column(
                    children: [
-                     Text('Last Backup: $lastBackup', style: TextStyle(color: Colors.grey[600], fontSize: 13)),
-                     // Hide Sign Out if it is an App Session
-                     if (sessionEmail == null) 
-                        TextButton(onPressed: _handleSignOut, child: const Text("Sign Out Cloud"))
+                     Row(
+                       children: [
+                         Expanded(
+                           child: _buildActionButton(
+                             icon: Icons.upload_file_rounded,
+                             label: 'Backup',
+                             onTap: _handleBackupNow,
+                             isPrimary: true,
+                           ),
+                         ),
+                         const SizedBox(width: 12),
+                         Expanded(
+                           child: _buildActionButton(
+                             icon: Icons.history_rounded,
+                             label: 'Restore',
+                             onTap: _handleRestore,
+                             isPrimary: false,
+                           ),
+                         ),
+                       ],
+                     ),
+                     const SizedBox(height: 12),
+                     Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.access_time_rounded, size: 14, color: Colors.grey[400]),
+                        const SizedBox(width: 4),
+                        Text('Last synced: $lastBackup', style: TextStyle(color: Colors.grey[400], fontSize: 12)),
+                      ],
+                     ),
                    ],
                  ),
                ),
-            ],
-          ],
-        );
+             ] else if (!isSignedOn) ...[
+                const Divider(height: 1, indent: 20, endIndent: 20),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: _buildActionButton(
+                    icon: Icons.login_rounded,
+                    label: 'Connect Account',
+                    onTap: _showAuthDialog,
+                    isPrimary: false,
+                  ),
+                ),
+             ],
+           ],
+         );
       }
+    );
+  }
+
+  Widget _buildDataManagementCard() {
+    return _buildCard(
+      children: [
+        _buildListTile(
+          icon: Icons.share_rounded,
+          title: 'Export Data',
+          subtitle: 'Share inventory & bills',
+          onTap: () {
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const ExportImportScreen()));
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAccountCard() {
+    return _buildCard(
+      children: [
+        _buildListTile(
+          icon: Icons.logout_rounded,
+          title: 'Sign Out',
+          subtitle: 'End session on this device',
+          iconColor: Colors.orange,
+          onTap: () => _confirmLogout(context),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAppInfoCard() {
+    return _buildCard(
+      children: [
+        _buildListTile(
+          icon: Icons.info_outline_rounded,
+          title: 'About BharatStore',
+          subtitle: 'Offline Inventory & Billing',
+          showArrow: false,
+        ),
+        const Divider(height: 1, indent: 60),
+        _buildListTile(
+          icon: Icons.shield_outlined,
+          title: 'Privacy & Storage',
+          subtitle: 'Data stored locally + Cloud',
+          showArrow: false,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildListTile({
+    required IconData icon,
+    required String title,
+    String? subtitle,
+    VoidCallback? onTap,
+    Color iconColor = AppTheme.primaryColor,
+    bool showArrow = true,
+  }) {
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+      leading: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: iconColor.withOpacity(0.1),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, color: iconColor, size: 22),
+      ),
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+      subtitle: subtitle != null ? Text(subtitle, style: TextStyle(fontSize: 13, color: Colors.grey[500])) : null,
+      trailing: showArrow ? Icon(Icons.chevron_right_rounded, color: Colors.grey[300], size: 20) : null,
+      onTap: onTap,
+    );
+  }
+
+  Widget _buildActionButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    required bool isPrimary,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: isPrimary ? AppTheme.primaryColor : Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: isPrimary ? null : Border.all(color: Colors.grey[200]!, width: 1.5),
+            boxShadow: isPrimary 
+              ? [BoxShadow(color: AppTheme.primaryColor.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4))]
+              : null,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 18, color: isPrimary ? Colors.white : AppTheme.primaryColor),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: TextStyle(
+                  color: isPrimary ? Colors.white : AppTheme.primaryColor,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
   void _confirmLogout(BuildContext context) {
     showDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(
+      builder: (ctx) => AlertDialog(
         title: const Text('Sign Out'),
-        content: const Text(
-            'Are you sure you want to sign out?\n\nThis will end your email session and you will need to login again with OTP.'),
+        content: const Text('Are you sure you want to sign out? You will need to login again.'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('CANCEL'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('CANCEL')),
           TextButton(
             onPressed: () async {
-              // Deactivate email session
               final sessionManager = SessionManager();
               await sessionManager.invalidateSession();
-
               if (mounted) {
-                Navigator.of(dialogContext).pop();
+                Navigator.pop(ctx);
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(builder: (_) => const EmailLoginScreen()),
                   (route) => false,

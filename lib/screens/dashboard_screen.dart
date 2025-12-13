@@ -3,456 +3,421 @@ import 'package:intl/intl.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import '../models/bill.dart';
+import 'package:fl_chart/fl_chart.dart';
 import '../models/product.dart';
 import '../providers/inventory_provider.dart';
 import '../theme/app_theme.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
 
   @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  int _touchedIndex = -1;
+
+  String get _greeting {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return 'Good Morning';
+    if (hour < 17) return 'Good Afternoon';
+    return 'Good Evening';
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final currencyFormat = NumberFormat.currency(locale: 'en_IN', symbol: '₹');
+    final currencyFormat = NumberFormat.compactSimpleCurrency(locale: 'en_IN');
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Home'),
-        elevation: 0,
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 16),
+      backgroundColor: AppTheme.backgroundColor,
+      body: ValueListenableBuilder(
+        valueListenable: Hive.box<Bill>('bills').listenable(),
+        builder: (context, Box<Bill> box, _) {
+           // Calculations
+           final now = DateTime.now();
+           final today = DateTime(now.year, now.month, now.day);
+           
+           // Today's Stats
+           final todayBills = box.values.where((bill) {
+              final bDate = DateTime(bill.timestamp.year, bill.timestamp.month, bill.timestamp.day);
+              return bDate == today;
+           }).toList();
+           final todaySales = todayBills.fold<double>(0, (sum, bill) => sum + bill.total);
+           
+           // Weekly Data for Chart
+           final weekData = List.generate(7, (index) {
+              final day = today.subtract(Duration(days: 6 - index)); // Last 7 days including today
+              final dayBills = box.values.where((bill) {
+                 final bDate = DateTime(bill.timestamp.year, bill.timestamp.month, bill.timestamp.day);
+                 return bDate == day;
+              }).toList();
+              final dayTotal = dayBills.fold<double>(0, (sum, bill) => sum + bill.total);
+              return _ChartData(DateFormat('E').format(day), dayTotal, day);
+           });
 
-            // Low Stock Alert Banner
-            Consumer<InventoryProvider>(
-              builder: (context, inventory, _) {
-                final lowStockCount = inventory.lowStockProducts.length;
-                if (lowStockCount == 0) return const SizedBox(height: 16);
+           // Overall Stats
+           final totalBills = box.values.length;
+           final avgOrder = totalBills > 0 ? box.values.fold<double>(0, (sum, bill) => sum + bill.total) / totalBills : 0.0;
 
-                return Container(
-                  margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppTheme.errorColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppTheme.errorColor.withOpacity(0.3)),
-                  ),
-                  child: Row(
+           return CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                expandedHeight: 120.0,
+                floating: false,
+                pinned: true,
+                backgroundColor: AppTheme.backgroundColor,
+                elevation: 0,
+                flexibleSpace: FlexibleSpaceBar(
+                  titlePadding: const EdgeInsets.only(left: 20, bottom: 16),
+                  title: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.warning_amber_rounded, 
-                        color: AppTheme.errorColor, size: 28),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          '$lowStockCount item${lowStockCount > 1 ? 's' : ''} running low on stock!',
-                          style: TextStyle(
-                            color: AppTheme.errorColor,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                          ),
-                        ),
+                       Text(
+                        _greeting,
+                        style: TextStyle(fontSize: 14, color: Colors.grey[600], fontWeight: FontWeight.w500),
+                      ),
+                      const Text(
+                        'Dashboard',
+                        style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 24),
                       ),
                     ],
                   ),
-                );
-              },
-            ),
-
-            // Stats Cards - 2 Column Grid with Square Cards
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                children: [
-                  // Row 1: Today's Sales & Weekly Sales
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ValueListenableBuilder(
-                          valueListenable: Hive.box<Bill>('bills').listenable(),
-                          builder: (context, Box<Bill> box, _) {
-                            final now = DateTime.now();
-                            final today = DateTime(now.year, now.month, now.day);
-                            
-                            final todayBills = box.values.where((bill) {
-                              final billDate = DateTime(
-                                bill.timestamp.year,
-                                bill.timestamp.month,
-                                bill.timestamp.day,
-                              );
-                              return billDate == today;
-                            }).toList();
-
-                            final todaySales = todayBills.fold<double>(
-                              0,
-                              (sum, bill) => sum + bill.total,
-                            );
-
-                            return _buildSquareStatCard(
-                              'Today\'s Sales',
-                              currencyFormat.format(todaySales),
-                              Icons.today,
-                              AppTheme.primaryColor,
-                              subtitle: '${todayBills.length} bills',
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: ValueListenableBuilder(
-                          valueListenable: Hive.box<Bill>('bills').listenable(),
-                          builder: (context, Box<Bill> box, _) {
-                            final cutoff = DateTime.now().subtract(const Duration(days: 7));
-                            final weeklyBills = box.values.where((bill) => bill.timestamp.isAfter(cutoff)).toList();
-
-                            final weeklySales = weeklyBills.fold<double>(
-                              0,
-                              (sum, bill) => sum + bill.total,
-                            );
-
-                            return _buildSquareStatCard(
-                              'Weekly Sales',
-                              currencyFormat.format(weeklySales),
-                              Icons.calendar_month,
-                              Color(0xFF059669),
-                              subtitle: 'Last 7 days',
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Row 2: Total Products & Total Transactions
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ValueListenableBuilder(
-                          valueListenable: Hive.box<Product>('products').listenable(),
-                          builder: (context, Box<Product> box, _) {
-                            return _buildSquareStatCard(
-                              'Total Products',
-                              '${box.values.length}',
-                              Icons.inventory_2,
-                              Color(0xFF3B82F6),
-                              subtitle: 'In inventory',
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: ValueListenableBuilder(
-                          valueListenable: Hive.box<Bill>('bills').listenable(),
-                          builder: (context, Box<Bill> box, _) {
-                            return _buildSquareStatCard(
-                              'Total Transactions',
-                              '${box.values.length}',
-                              Icons.receipt_long,
-                              Color(0xFF8B5CF6),
-                              subtitle: 'All time',
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Row 3: Inventory Value & Low Stock
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ValueListenableBuilder(
-                          valueListenable: Hive.box<Product>('products').listenable(),
-                          builder: (context, Box<Product> box, _) {
-                            final totalValue = box.values.fold<double>(
-                              0,
-                              (sum, product) => sum + (product.price * product.quantity),
-                            );
-
-                            return _buildSquareStatCard(
-                              'Inventory Value',
-                              currencyFormat.format(totalValue),
-                              Icons.account_balance_wallet,
-                              Color(0xFFEC4899),
-                              subtitle: 'Total worth',
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: ValueListenableBuilder(
-                          valueListenable: Hive.box<Product>('products').listenable(),
-                          builder: (context, Box<Product> box, _) {
-                            final lowStockProducts = box.values.where((p) => p.quantity < p.threshold).toList();
-
-                            return _buildSquareStatCard(
-                              'Low Stock',
-                              '${lowStockProducts.length}',
-                              Icons.warning_amber_rounded,
-                              AppTheme.warningColor,
-                              subtitle: lowStockProducts.isEmpty ? 'All good!' : 'Items',
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Row 4: Most Selling Item & Average Order
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ValueListenableBuilder(
-                          valueListenable: Hive.box<Bill>('bills').listenable(),
-                          builder: (context, Box<Bill> box, _) {
-                            final productSales = <String, double>{};
-                            final productNames = <String, String>{};
-
-                            for (final bill in box.values) {
-                              for (final item in bill.items) {
-                                productSales[item.productId] = (productSales[item.productId] ?? 0) + item.quantity;
-                                productNames[item.productId] = item.name;
-                              }
-                            }
-
-                            final sortedProducts = productSales.entries.toList()
-                              ..sort((a, b) => b.value.compareTo(a.value));
-
-                            final topProduct = sortedProducts.isNotEmpty ? sortedProducts.first : null;
-                            final topProductName = topProduct != null ? productNames[topProduct.key] ?? 'N/A' : 'N/A';
-                            final topProductQty = topProduct?.value ?? 0;
-
-                            return _buildSquareStatCard(
-                              'Best Seller',
-                              topProductName.length > 15 ? '${topProductName.substring(0, 15)}...' : topProductName,
-                              Icons.star,
-                              Color(0xFFF59E0B),
-                              subtitle: '${topProductQty.toStringAsFixed(1)} units',
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: ValueListenableBuilder(
-                          valueListenable: Hive.box<Bill>('bills').listenable(),
-                          builder: (context, Box<Bill> box, _) {
-                            final bills = box.values.toList();
-                            final avgOrder = bills.isEmpty ? 0.0 : bills.fold<double>(0, (sum, bill) => sum + bill.total) / bills.length;
-
-                            return _buildSquareStatCard(
-                              'Avg Order',
-                              currencyFormat.format(avgOrder),
-                              Icons.trending_up,
-                              Color(0xFF06B6D4),
-                              subtitle: 'Per transaction',
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
+                ),
+                actions: [
+                   Padding(
+                     padding: const EdgeInsets.only(right: 16.0),
+                     child: CircleAvatar(
+                       backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
+                       child: const Icon(Icons.person, color: AppTheme.primaryColor),
+                     ),
+                   )
                 ],
               ),
-            ),
 
-            const SizedBox(height: 24),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 1. Hero Card
+                      _buildHeroCard(todaySales, todayBills.length),
+                      const SizedBox(height: 24),
 
-            // Top Selling Products
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                'Top Selling Products',
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            ValueListenableBuilder(
-              valueListenable: Hive.box<Bill>('bills').listenable(),
-              builder: (context, Box<Bill> box, _) {
-                final productSales = <String, double>{};
-                final productNames = <String, String>{};
-
-                for (final bill in box.values) {
-                  for (final item in bill.items) {
-                    productSales[item.productId] = (productSales[item.productId] ?? 0) + item.quantity;
-                    productNames[item.productId] = item.name;
-                  }
-                }
-
-                final sortedProducts = productSales.entries.toList()
-                  ..sort((a, b) => b.value.compareTo(a.value));
-
-                final topProducts = sortedProducts.take(5).toList();
-
-                if (topProducts.isEmpty) {
-                  return const Padding(
-                    padding: EdgeInsets.all(40),
-                    child: Center(
-                      child: Text(
-                        'No sales data yet',
-                        style: TextStyle(color: AppTheme.textSecondary),
+                      // 2. Weekly Activity Chart
+                      const Text(
+                        'Weekly Activity',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
                       ),
-                    ),
-                  );
-                }
-
-                return ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: topProducts.length,
-                  itemBuilder: (context, index) {
-                    final entry = topProducts[index];
-                    final productName = productNames[entry.key] ?? 'Unknown';
-                    final quantity = entry.value;
-
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: AppTheme.lightShadow,
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: AppTheme.primaryColor.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
+                      const SizedBox(height: 16),
+                      Container(
+                        height: 220,
+                        padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: const [BoxShadow(color: Color(0x08000000), blurRadius: 10, offset: Offset(0, 4))],
+                        ),
+                        child: BarChart(
+                          BarChartData(
+                            alignment: BarChartAlignment.spaceAround,
+                            maxY: weekData.map((e) => e.value).reduce((a, b) => a > b ? a : b) * 1.2 + 100, // Add buffer
+                            barTouchData: BarTouchData(
+                              touchTooltipData: BarTouchTooltipData(
+                                tooltipBgColor: Colors.blueGrey,
+                                getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                                  return BarTooltipItem(
+                                    currencyFormat.format(rod.toY),
+                                    const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                  );
+                                },
+                              ),
+                              touchCallback: (FlTouchEvent event, barTouchResponse) {
+                                setState(() {
+                                  if (!event.isInterestedForInteractions ||
+                                      barTouchResponse == null ||
+                                      barTouchResponse.spot == null) {
+                                    _touchedIndex = -1;
+                                    return;
+                                  }
+                                  _touchedIndex = barTouchResponse.spot!.touchedBarGroupIndex;
+                                });
+                              },
                             ),
-                            child: Center(
-                              child: Text(
-                                '${index + 1}',
-                                style: const TextStyle(
-                                  color: AppTheme.primaryColor,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
+                            titlesData: FlTitlesData(
+                              show: true,
+                              bottomTitles: AxisTitles(
+                                sideTitles: SideTitles(
+                                  showTitles: true,
+                                  getTitlesWidget: (double value, TitleMeta meta) {
+                                    return SideTitleWidget(
+                                      axisSide: meta.axisSide,
+                                      child: Text(
+                                        weekData[value.toInt()].label,
+                                        style: TextStyle(
+                                          color: value.toInt() == 6 ? AppTheme.primaryColor : Colors.grey,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 ),
                               ),
+                              leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                              topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                              rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                             ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  productName,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 15,
+                            gridData: const FlGridData(show: false),
+                            borderData: FlBorderData(show: false),
+                            barGroups: weekData.asMap().entries.map((e) {
+                              final index = e.key;
+                              final data = e.value;
+                              final isTouched = index == _touchedIndex;
+                              final isToday = index == 6;
+                              
+                              return BarChartGroupData(
+                                x: index,
+                                barRods: [
+                                  BarChartRodData(
+                                    toY: data.value,
+                                    color: isToday ? AppTheme.primaryColor : (isTouched ? AppTheme.primaryColor.withOpacity(0.8) : Colors.grey[200]),
+                                    width: 16,
+                                    borderRadius: BorderRadius.circular(6),
+                                    backDrawRodData: BackgroundBarChartRodData(
+                                      show: true,
+                                      toY: (weekData.map((e) => e.value).reduce((a, b) => a > b ? a : b) * 1.2 + 100),
+                                      color: const Color(0xfffafafa),
+                                    ),
                                   ),
-                                ),
-                                Text(
-                                  'Sold: ${quantity.toStringAsFixed(1)} units',
-                                  style: const TextStyle(
-                                    color: AppTheme.textSecondary,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                              ],
-                            ),
+                                ],
+                              );
+                            }).toList(),
                           ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // 3. Business Insights Scroll
+                      const Text(
+                        'Business Insights',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+                      ),
+                      const SizedBox(height: 16),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            _buildInsightCard('Avg Order Value', currencyFormat.format(avgOrder), Icons.receipt_long, Colors.purple),
+                            const SizedBox(width: 16),
+                            _buildInsightCard('Total Orders', totalBills.toString(), Icons.shopping_bag, Colors.orange),
+                            const SizedBox(width: 16),
+                             ValueListenableBuilder(
+                                valueListenable: Hive.box<Product>('products').listenable(),
+                                builder: (context, Box<Product> pBox, _) {
+                                   return _buildInsightCard('Products', pBox.length.toString(), Icons.inventory_2, Colors.blue);
+                                }
+                             ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // 4. Recent Transactions List
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Recent Transactions',
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+                          ),
+                          TextButton(
+                             onPressed: (){ 
+                               // Navigate to history tab via main nav controller presumably, 
+                               // but for now just visual.
+                             }, 
+                             child: const Text('View All')
+                          )
                         ],
                       ),
-                    );
-                  },
-                );
-              },
-            ),
-
-            const SizedBox(height: 24),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSquareStatCard(
-    String title,
-    String value,
-    IconData icon,
-    Color color, {
-    String? subtitle,
-  }) {
-    return AspectRatio(
-      aspectRatio: 1.15, // Slightly wider rectangle for better content fit
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: AppTheme.cardShadow,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
+                      // List of last 5 bills
+                      ListView.builder(
+                        padding: EdgeInsets.zero,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: box.values.length > 5 ? 5 : box.values.length,
+                        itemBuilder: (context, index) {
+                           // Get reverse index for latest first
+                           final bill = box.values.toList().reversed.toList()[index]; 
+                           return Container(
+                             margin: const EdgeInsets.only(bottom: 12),
+                             padding: const EdgeInsets.all(16),
+                             decoration: BoxDecoration(
+                               color: Colors.white,
+                               borderRadius: BorderRadius.circular(16),
+                               border: Border.all(color: Colors.grey.shade100),
+                             ),
+                             child: Row(
+                               children: [
+                                 Container(
+                                   padding: const EdgeInsets.all(10),
+                                   decoration: BoxDecoration(
+                                     color: Colors.green.shade50,
+                                     shape: BoxShape.circle,
+                                   ),
+                                   child: const Icon(Icons.check, color: Colors.green, size: 16),
+                                 ),
+                                 const SizedBox(width: 16),
+                                 Expanded(
+                                   child: Column(
+                                     crossAxisAlignment: CrossAxisAlignment.start,
+                                     children: [
+                                       Text(
+                                         'Order #${bill.id.substring(0,6)}',
+                                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                       ),
+                                       Text(
+                                         DateFormat('hh:mm a').format(bill.timestamp),
+                                         style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                                       ),
+                                     ],
+                                   ),
+                                 ),
+                                 Text(
+                                   currencyFormat.format(bill.total),
+                                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                 ),
+                               ],
+                             ),
+                           );
+                        },
+                      ),
+                      const SizedBox(height: 40),
+                    ],
+                  ),
+                ),
               ),
-              child: Icon(icon, color: color, size: 24),
-            ),
-            const SizedBox(height: 12),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: AppTheme.textSecondary,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.textPrimary,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                ),
-                if (subtitle != null) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: const TextStyle(
-                      color: AppTheme.textLight,
-                      fontSize: 12,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ],
-            ),
-          ],
-        ),
+            ],
+          );
+        },
       ),
     );
   }
+
+  Widget _buildHeroCard(double todaySales, int transactionCount) {
+    final currencyFormat = NumberFormat.compactSimpleCurrency(locale: 'en_IN');
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: AppTheme.primaryGradient,
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.primaryColor.withOpacity(0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.calendar_today, color: Colors.white, size: 14),
+                    SizedBox(width: 6),
+                    Text(
+                      'TODAY',
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), shape: BoxShape.circle),
+                child: const Icon(Icons.notifications_none, color: Colors.white, size: 18)
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          Text(
+            'Total Revenue',
+            style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 14),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            currencyFormat.format(todaySales),
+            style: const TextStyle(
+              fontSize: 42, 
+              fontWeight: FontWeight.bold, 
+              color: Colors.white,
+              height: 1.0,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            '$transactionCount Transactions',
+            style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 14, fontWeight: FontWeight.w500),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInsightCard(String title, String value, IconData icon, Color color) {
+    return Container(
+      width: 140,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: const [BoxShadow(color: Color(0x05000000), blurRadius: 10, offset: Offset(0, 4))],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: color, size: 22),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            title,
+            style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ChartData {
+  final String label;
+  final double value;
+  final DateTime date;
+  _ChartData(this.label, this.value, this.date);
 }

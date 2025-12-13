@@ -5,6 +5,7 @@ import '../providers/inventory_provider.dart';
 import '../models/product.dart';
 import 'add_product_screen.dart';
 import 'edit_product_screen.dart';
+import '../theme/app_theme.dart';
 
 class InventoryListScreen extends StatefulWidget {
   const InventoryListScreen({Key? key}) : super(key: key);
@@ -20,29 +21,50 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
-        title: const Text('Inventory'),
+        title: const Text('Inventory', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+        backgroundColor: AppTheme.backgroundColor,
+        elevation: 0,
+        centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(_showLowStockOnly ? Icons.filter_alt : Icons.filter_alt_outlined),
+            icon: Icon(
+              _showLowStockOnly ? Icons.filter_alt : Icons.filter_alt_outlined,
+              color: _showLowStockOnly ? AppTheme.primaryColor : Colors.black87,
+            ),
             onPressed: () => setState(() => _showLowStockOnly = !_showLowStockOnly),
             tooltip: 'Show low stock only',
           ),
+          const SizedBox(width: 8),
         ],
       ),
       body: Column(
         children: [
+          // Search Bar
           Padding(
-            padding: const EdgeInsets.all(16),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Search products...',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: const [BoxShadow(color: Color(0x05000000), blurRadius: 10, offset: Offset(0, 4))],
               ),
-              onChanged: (value) => setState(() => _searchQuery = value.toLowerCase()),
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: 'Search products...',
+                  hintStyle: TextStyle(color: Colors.grey[400]),
+                  prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                onChanged: (value) => setState(() => _searchQuery = value.toLowerCase()),
+              ),
             ),
           ),
+          
           Expanded(
             child: Consumer<InventoryProvider>(
               builder: (context, inventory, _) {
@@ -62,27 +84,35 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.inventory_2_outlined, size: 80, color: Colors.grey[400]),
-                        const SizedBox(height: 16),
+                        Container(
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(Icons.inventory_2_outlined, size: 64, color: Colors.grey[400]),
+                        ),
+                        const SizedBox(height: 24),
                         Text(
                           _searchQuery.isNotEmpty 
                             ? 'No products found' 
-                            : 'No products yet',
-                          style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+                            : 'Inventory is empty',
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.grey[600]),
                         ),
                         const SizedBox(height: 8),
-                        const Text(
-                          'Tap + to add your first product',
-                          style: TextStyle(color: Colors.grey),
+                        Text(
+                          'Tap the + button to add items',
+                          style: TextStyle(color: Colors.grey[500]),
                         ),
                       ],
                     ),
                   );
                 }
 
-                return ListView.builder(
+                return ListView.separated(
                   itemCount: products.length,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  separatorBuilder: (_, __) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final product = products[index];
                     return _buildProductCard(context, product);
@@ -98,65 +128,112 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
           context,
           MaterialPageRoute(builder: (_) => const AddProductScreen()),
         ),
-        icon: const Icon(Icons.add),
-        label: const Text('Add Product'),
+        backgroundColor: AppTheme.primaryColor,
+        elevation: 4,
+        icon: const Icon(Icons.add_rounded, color: Colors.white),
+        label: const Text('Add Product', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
       ),
     );
   }
 
   Widget _buildProductCard(BuildContext context, Product product) {
-    final currencyFormat = NumberFormat.currency(locale: 'en_IN', symbol: '₹');
-    
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      color: product.isLowStock ? Colors.red.shade50 : null,
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: product.isLowStock ? Colors.red : Colors.blue,
-          child: Text(
-            product.name[0].toUpperCase(),
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+    final currencyFormat = NumberFormat.compactSimpleCurrency(locale: 'en_IN');
+    final isLowStock = product.isLowStock;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [BoxShadow(color: Color(0x05000000), blurRadius: 10, offset: Offset(0, 2))],
+        border: isLowStock ? Border.all(color: AppTheme.errorColor.withOpacity(0.3)) : null,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => EditProductScreen(product: product)),
           ),
-        ),
-        title: Text(
-          product.name,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (product.barcode != null) Text('Barcode: ${product.barcode}'),
-            Text('Price: ${currencyFormat.format(product.price)}'),
-            Row(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
               children: [
-                Text(
-                  'Stock: ${product.quantity}',
-                  style: TextStyle(
-                    color: product.isLowStock ? Colors.red : Colors.green,
-                    fontWeight: FontWeight.bold,
+                // Product Icon / Image Placeholder
+                Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: isLowStock ? AppTheme.errorColor.withOpacity(0.1) : AppTheme.primaryColor.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Center(
+                    child: Text(
+                      product.name.isNotEmpty ? product.name[0].toUpperCase() : '?',
+                      style: TextStyle(
+                        color: isLowStock ? AppTheme.errorColor : AppTheme.primaryColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 24,
+                      ),
+                    ),
                   ),
                 ),
-                const SizedBox(width: 8),
-                Text('(Alert at ${product.threshold})'),
+                const SizedBox(width: 16),
+                
+                // Product Details
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        product.name,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        currencyFormat.format(product.price),
+                        style: TextStyle(
+                            color: Colors.grey[600],
+                            fontWeight: FontWeight.w500,
+                            fontSize: 14
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                
+                // Stock Badge & Edit
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: isLowStock ? AppTheme.errorColor.withOpacity(0.1) : Colors.green.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        'Stock: ${product.quantity}',
+                        style: TextStyle(
+                          color: isLowStock ? AppTheme.errorColor : Colors.green[700],
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                    if (product.barcode != null && product.barcode!.isNotEmpty)
+                       Padding(
+                         padding: const EdgeInsets.only(top: 4.0),
+                         child: Icon(Icons.qr_code_rounded, size: 16, color: Colors.grey[400]),
+                       ),
+                  ],
+                ),
               ],
             ),
-          ],
+          ),
         ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (product.isLowStock)
-              const Icon(Icons.warning, color: Colors.red),
-            IconButton(
-              icon: const Icon(Icons.edit, color: Colors.blue),
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => EditProductScreen(product: product)),
-              ),
-            ),
-          ],
-        ),
-        isThreeLine: true,
       ),
     );
   }

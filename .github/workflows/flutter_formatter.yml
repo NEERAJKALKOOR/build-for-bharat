@@ -1,7 +1,4 @@
 
-yaml
-name: Flutter Formatter
-
 on:
   pull_request:
   push:
@@ -25,4 +22,3 @@ jobs:
 
       - name: Run Dart Formatter
         run: dart format --set-exit-if-changed .
-
