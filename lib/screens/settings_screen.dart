@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math' as math;
 import 'package:intl/intl.dart';
 import '../services/session_manager.dart';
 import 'email_login_screen.dart';
@@ -20,6 +21,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final SupabaseBackupService _backupService = SupabaseBackupService();
   CloudBackupSettings? _backupSettings;
   bool _isLoading = false;
+  bool _chaosMode = false;
 
   @override
   void initState() {
@@ -233,17 +235,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundLight,
+      backgroundColor: _chaosMode ? Colors.purpleAccent : AppTheme.backgroundLight,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: AppTheme.backgroundLight,
+        backgroundColor: _chaosMode ? Colors.orange : AppTheme.backgroundLight,
         foregroundColor: Colors.black,
-        title: const Text('Settings', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+        title: _chaosMode 
+             ? Transform.rotate(angle: 0.1, child: const Text('S3tt1ngs!?', style: TextStyle(color: Colors.red, fontWeight: FontWeight.w900, fontSize: 24)))
+             : const Text('Settings', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
         centerTitle: true,
       ),
       body: _isLoading 
         ? const Center(child: CircularProgressIndicator(color: AppTheme.primaryBlue)) 
-        : SingleChildScrollView(
+        : MediaQuery(
+            data: MediaQuery.of(context).copyWith(
+              textScaler: _chaosMode 
+                  ? TextScaler.linear(math.Random().nextDouble() * 1.5 + 0.8) // Random scale 0.8x to 2.3x
+                  : TextScaler.noScaling,
+            ),
+            child: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -263,6 +273,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 _buildSectionHeader('App Info'),
                 _buildAppInfoCard(),
                 
+                const SizedBox(height: 24),
+                _buildSectionHeader('Danger Zone'),
+                _buildCard(
+                  children: [
+                    SwitchListTile(
+                      title: Text(_chaosMode ? 'CHAOS ACTIVE !!!' : 'Chaos Mode', style: TextStyle(color: _chaosMode ? Colors.red : Colors.black, fontWeight: FontWeight.bold)),
+                      subtitle: const Text('Do not touch this toggle'),
+                      value: _chaosMode,
+                      secondary: Icon(Icons.flash_on, color: _chaosMode ? Colors.red : Colors.amber),
+                      activeColor: Colors.red,
+                      onChanged: (val) {
+                         setState(() => _chaosMode = val);
+                      },
+                    )
+                  ]
+                ),
+
                 const SizedBox(height: 40),
                 Center(
                   child: Text(
@@ -274,10 +301,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ],
             ),
           ),
+        ),
     );
   }
 
   Widget _buildSectionHeader(String title) {
+    if (_chaosMode) {
+       return Padding(
+         padding: const EdgeInsets.all(8.0),
+         child: Transform.scale(
+           scale: 1.2,
+           child: Text(
+             title.split('').reversed.join(),
+             style: const TextStyle(fontSize: 18, color: Colors.pink, fontWeight: FontWeight.bold),
+           ),
+         ),
+       );
+    }
     return Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 8),
       child: Text(
@@ -293,6 +333,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildCard({required List<Widget> children}) {
+    if (_chaosMode) {
+       return Transform.rotate(
+         angle: (math.Random().nextDouble() - 0.5) * 0.2, // Random rotation
+         child: Container(
+           decoration: BoxDecoration(
+             color: Colors.primaries[math.Random().nextInt(Colors.primaries.length)],
+             borderRadius: BorderRadius.circular(math.Random().nextDouble() * 50),
+             border: Border.all(color: Colors.black, width: 2),
+           ),
+           padding: const EdgeInsets.all(12),
+           child: Column(children: children),
+         ),
+       );
+    }
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
