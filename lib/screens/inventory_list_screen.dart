@@ -9,7 +9,8 @@ import '../theme/app_theme.dart';
 
 class InventoryListScreen extends StatefulWidget {
   final bool showLowStock;
-  const InventoryListScreen({Key? key, this.showLowStock = false}) : super(key: key);
+  const InventoryListScreen({Key? key, this.showLowStock = false})
+      : super(key: key);
 
   @override
   State<InventoryListScreen> createState() => _InventoryListScreenState();
@@ -30,7 +31,8 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
-        title: const Text('Inventory', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+        title: const Text('Inventory',
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
         backgroundColor: AppTheme.backgroundLight,
         elevation: 0,
         centerTitle: true,
@@ -40,7 +42,8 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
               _showLowStockOnly ? Icons.filter_alt : Icons.filter_alt_outlined,
               color: _showLowStockOnly ? AppTheme.primaryBlue : Colors.black87,
             ),
-            onPressed: () => setState(() => _showLowStockOnly = !_showLowStockOnly),
+            onPressed: () =>
+                setState(() => _showLowStockOnly = !_showLowStockOnly),
             tooltip: 'Show low stock only',
           ),
           const SizedBox(width: 8),
@@ -55,7 +58,12 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                boxShadow: const [BoxShadow(color: Color(0x05000000), blurRadius: 10, offset: Offset(0, 4))],
+                boxShadow: const [
+                  BoxShadow(
+                      color: Color(0x05000000),
+                      blurRadius: 10,
+                      offset: Offset(0, 4))
+                ],
               ),
               child: TextField(
                 decoration: InputDecoration(
@@ -67,23 +75,26 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
                   focusedBorder: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                onChanged: (value) => setState(() => _searchQuery = value.toLowerCase()),
+                onChanged: (value) =>
+                    setState(() => _searchQuery = value.toLowerCase()),
               ),
             ),
           ),
-          
+
           Expanded(
             child: Consumer<InventoryProvider>(
               builder: (context, inventory, _) {
-                var products = _showLowStockOnly 
-                  ? inventory.lowStockProducts 
-                  : inventory.products;
+                var products = _showLowStockOnly
+                    ? inventory.lowStockProducts
+                    : inventory.products;
 
                 if (_searchQuery.isNotEmpty) {
-                  products = products.where((p) => 
-                    p.name.toLowerCase().contains(_searchQuery) ||
-                    (p.barcode?.toLowerCase().contains(_searchQuery) ?? false)
-                  ).toList();
+                  products = products
+                      .where((p) =>
+                          p.name.toLowerCase().contains(_searchQuery) ||
+                          (p.barcode?.toLowerCase().contains(_searchQuery) ??
+                              false))
+                      .toList();
                 }
 
                 if (products.isEmpty) {
@@ -97,14 +108,18 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
                             color: Colors.grey[100],
                             shape: BoxShape.circle,
                           ),
-                          child: Icon(Icons.inventory_2_outlined, size: 64, color: Colors.grey[400]),
+                          child: Icon(Icons.inventory_2_outlined,
+                              size: 64, color: Colors.grey[400]),
                         ),
                         const SizedBox(height: 24),
                         Text(
-                          _searchQuery.isNotEmpty 
-                            ? 'No products found' 
-                            : 'Inventory is empty',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.grey[600]),
+                          _searchQuery.isNotEmpty
+                              ? 'No products found'
+                              : 'Inventory is empty',
+                          style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey[600]),
                         ),
                         const SizedBox(height: 8),
                         Text(
@@ -118,7 +133,8 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
 
                 return ListView.separated(
                   itemCount: products.length,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   separatorBuilder: (_, __) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final product = products[index];
@@ -138,7 +154,8 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
         backgroundColor: AppTheme.primaryBlue,
         elevation: 4,
         icon: const Icon(Icons.add_rounded, color: Colors.white),
-        label: const Text('Add Product', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        label: const Text('Add Product',
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
       ),
     );
   }
@@ -151,8 +168,13 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: const [BoxShadow(color: Color(0x05000000), blurRadius: 10, offset: Offset(0, 2))],
-        border: isLowStock ? Border.all(color: AppTheme.error.withOpacity(0.3)) : null,
+        boxShadow: const [
+          BoxShadow(
+              color: Color(0x05000000), blurRadius: 10, offset: Offset(0, 2))
+        ],
+        border: isLowStock
+            ? Border.all(color: AppTheme.error.withOpacity(0.3))
+            : null,
       ),
       child: Material(
         color: Colors.transparent,
@@ -160,7 +182,8 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
           borderRadius: BorderRadius.circular(16),
           onTap: () => Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => EditProductScreen(product: product)),
+            MaterialPageRoute(
+                builder: (_) => EditProductScreen(product: product)),
           ),
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -171,14 +194,19 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
                   width: 56,
                   height: 56,
                   decoration: BoxDecoration(
-                    color: isLowStock ? AppTheme.error.withOpacity(0.1) : AppTheme.primaryBlue.withOpacity(0.08),
+                    color: isLowStock
+                        ? AppTheme.error.withOpacity(0.1)
+                        : AppTheme.primaryBlue.withOpacity(0.08),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Center(
                     child: Text(
-                      product.name.isNotEmpty ? product.name[0].toUpperCase() : '?',
+                      product.name.isNotEmpty
+                          ? product.name[0].toUpperCase()
+                          : '?',
                       style: TextStyle(
-                        color: isLowStock ? AppTheme.error : AppTheme.primaryBlue,
+                        color:
+                            isLowStock ? AppTheme.error : AppTheme.primaryBlue,
                         fontWeight: FontWeight.bold,
                         fontSize: 24,
                       ),
@@ -186,7 +214,7 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
                   ),
                 ),
                 const SizedBox(width: 16),
-                
+
                 // Product Details
                 Expanded(
                   child: Column(
@@ -194,7 +222,10 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
                     children: [
                       Text(
                         product.name,
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.black87),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -204,37 +235,41 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
                         style: TextStyle(
                             color: Colors.grey[600],
                             fontWeight: FontWeight.w500,
-                            fontSize: 14
-                        ),
+                            fontSize: 14),
                       ),
                     ],
                   ),
                 ),
-                
+
                 // Stock Badge & Edit
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: isLowStock ? AppTheme.error.withOpacity(0.1) : Colors.green.withOpacity(0.1),
+                        color: isLowStock
+                            ? AppTheme.error.withOpacity(0.1)
+                            : Colors.green.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
                         'Stock: ${product.quantity}',
                         style: TextStyle(
-                          color: isLowStock ? AppTheme.error : Colors.green[700],
+                          color:
+                              isLowStock ? AppTheme.error : Colors.green[700],
                           fontWeight: FontWeight.bold,
                           fontSize: 12,
                         ),
                       ),
                     ),
                     if (product.barcode != null && product.barcode!.isNotEmpty)
-                       Padding(
-                         padding: const EdgeInsets.only(top: 4.0),
-                         child: Icon(Icons.qr_code_rounded, size: 16, color: Colors.grey[400]),
-                       ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4.0),
+                        child: Icon(Icons.qr_code_rounded,
+                            size: 16, color: Colors.grey[400]),
+                      ),
                   ],
                 ),
               ],

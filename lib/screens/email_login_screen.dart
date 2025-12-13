@@ -216,7 +216,8 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppTheme.primaryBlue,
                                 foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -228,7 +229,8 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
                                       width: 20,
                                       child: CircularProgressIndicator(
                                         strokeWidth: 2,
-                                        valueColor: AlwaysStoppedAnimation<Color>(
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
                                           Colors.white,
                                         ),
                                       ),

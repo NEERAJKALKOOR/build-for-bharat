@@ -49,8 +49,9 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
   }
 
   void _forgotPin() {
-    final hasQuestion = context.read<AuthProvider>().getSecurityQuestion() != null;
-    
+    final hasQuestion =
+        context.read<AuthProvider>().getSecurityQuestion() != null;
+
     if (hasQuestion) {
       Navigator.of(context).push(
         MaterialPageRoute(builder: (_) => const ResetPinScreen()),
@@ -84,7 +85,8 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
                   labelText: 'Enter PIN',
                   prefixIcon: const Icon(Icons.lock),
                   suffixIcon: IconButton(
-                    icon: Icon(_obscurePin ? Icons.visibility_off : Icons.visibility),
+                    icon: Icon(
+                        _obscurePin ? Icons.visibility_off : Icons.visibility),
                     onPressed: () => setState(() => _obscurePin = !_obscurePin),
                   ),
                 ),

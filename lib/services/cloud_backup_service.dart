@@ -28,13 +28,13 @@ class CloudBackupService {
   /// Get or create cloud backup settings
   Future<CloudBackupSettings> getSettings() async {
     final box = await Hive.openBox<CloudBackupSettings>(_cloudBackupBoxName);
-    
+
     if (box.isEmpty) {
       final settings = CloudBackupSettings();
       await box.put('settings', settings);
       return settings;
     }
-    
+
     return box.get('settings', defaultValue: CloudBackupSettings())!;
   }
 
@@ -69,32 +69,38 @@ class CloudBackupService {
     final dailyMetricsBox = await Hive.openBox(_dailyMetricsBoxName);
 
     // Convert to serializable format
-    final products = productsBox.values.map((p) => {
-      'id': p.id,
-      'name': p.name,
-      'barcode': p.barcode,
-      'price': p.price,
-      'quantity': p.quantity,
-      'threshold': p.threshold,
-      'imageUrl': p.imageUrl,
-      'brand': p.brand,
-      'category': p.category,
-      'unit': p.unit,
-      'source': p.source,
-    }).toList();
+    final products = productsBox.values
+        .map((p) => {
+              'id': p.id,
+              'name': p.name,
+              'barcode': p.barcode,
+              'price': p.price,
+              'quantity': p.quantity,
+              'threshold': p.threshold,
+              'imageUrl': p.imageUrl,
+              'brand': p.brand,
+              'category': p.category,
+              'unit': p.unit,
+              'source': p.source,
+            })
+        .toList();
 
-    final bills = billsBox.values.map((b) => {
-      'id': b.id,
-      'timestamp': b.timestamp.toIso8601String(),
-      'total': b.total,
-      'items': b.items.map((item) => {
-        'productId': item.productId,
-        'name': item.name,
-        'quantity': item.quantity,
-        'price': item.price,
-        'unit': item.unit,
-      }).toList(),
-    }).toList();
+    final bills = billsBox.values
+        .map((b) => {
+              'id': b.id,
+              'timestamp': b.timestamp.toIso8601String(),
+              'total': b.total,
+              'items': b.items
+                  .map((item) => {
+                        'productId': item.productId,
+                        'name': item.name,
+                        'quantity': item.quantity,
+                        'price': item.price,
+                        'unit': item.unit,
+                      })
+                  .toList(),
+            })
+        .toList();
 
     final settingsData = settingsBox.toMap();
     final metricsData = dailyMetricsBox.toMap();
@@ -117,15 +123,15 @@ class CloudBackupService {
   /// Sign in anonymously to Firebase
   Future<User> signInAnonymously() async {
     print('🔐 Signing in anonymously...');
-    
+
     try {
       final userCredential = await _auth.signInAnonymously();
       final user = userCredential.user;
-      
+
       if (user == null) {
         throw Exception('Anonymous sign-in failed');
       }
-      
+
       print('✅ Signed in anonymously: ${user.uid}');
       return user;
     } catch (e) {
@@ -137,7 +143,7 @@ class CloudBackupService {
   /// Upload backup to Firestore
   Future<void> uploadBackup(String backupJson) async {
     final settings = await getSettings();
-    
+
     if (settings.userId == null) {
       throw Exception('User ID not initialized');
     }
@@ -176,7 +182,7 @@ class CloudBackupService {
   /// Download backup from Firestore
   Future<String?> downloadBackup() async {
     final settings = await getSettings();
-    
+
     if (settings.userId == null) {
       throw Exception('User ID not initialized');
     }

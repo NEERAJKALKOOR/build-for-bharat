@@ -39,7 +39,8 @@ class BackupJsonReader {
     }
 
     // Restore Products
-    final productsList = (data['products'] as List).cast<Map<String, dynamic>>();
+    final productsList =
+        (data['products'] as List).cast<Map<String, dynamic>>();
     await productsBox.clear();
     for (var pJson in productsList) {
       final product = Product.fromJson(pJson);
@@ -66,12 +67,13 @@ class BackupJsonReader {
           securityQuestion: aJson['securityQuestion'],
           securityAnswerHash: aJson['securityAnswerHash'],
         );
-        await authBox.put('auth', auth); // Assuming key 'auth' for single instance
+        await authBox.put(
+            'auth', auth); // Assuming key 'auth' for single instance
       }
       print('✅ Restored auth settings');
     }
-    
-    // Note: Analytics are calculated on-the-fly from bills/products, 
+
+    // Note: Analytics are calculated on-the-fly from bills/products,
     // so no separate box needs to be restored for them.
   }
 }

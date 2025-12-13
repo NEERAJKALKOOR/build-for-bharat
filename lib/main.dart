@@ -25,14 +25,14 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Supabase.initialize(
     // REPLACE THIS:
-    url: 'https://nyxomlecmybisraavfan.supabase.co', 
-    
+    url: 'https://nyxomlecmybisraavfan.supabase.co',
+
     // REPLACE THIS with the "anon" key from the dashboard:
-    anonKey: 'sb_publishable_SNZVGrF5fO3qLuP2binnmg_4X1qIYZ-', 
+    anonKey: 'sb_publishable_SNZVGrF5fO3qLuP2binnmg_4X1qIYZ-',
   );
-  
+
   await Hive.initFlutter();
-  
+
   Hive.registerAdapter(AuthModelAdapter());
   Hive.registerAdapter(ProductAdapter());
   Hive.registerAdapter(BillItemAdapter());
@@ -40,28 +40,30 @@ void main() async {
   Hive.registerAdapter(UserSessionAdapter());
   Hive.registerAdapter(OtpVerificationAdapter());
   Hive.registerAdapter(CloudBackupSettingsAdapter());
-  
+
   final authService = AuthService();
   final productService = ProductService();
   final billingService = BillingService();
   final apiService = OpenFoodFactsService();
-  
+
   await authService.init();
   await productService.init();
   await billingService.init();
-  
+
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  
+
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider(authService)),
-        ChangeNotifierProvider(create: (_) => InventoryProvider(productService, apiService)),
-        ChangeNotifierProvider(create: (_) => BillingProvider(billingService, productService)),
+        ChangeNotifierProvider(
+            create: (_) => InventoryProvider(productService, apiService)),
+        ChangeNotifierProvider(
+            create: (_) => BillingProvider(billingService, productService)),
       ],
       child: const BharatStoreApp(),
     ),

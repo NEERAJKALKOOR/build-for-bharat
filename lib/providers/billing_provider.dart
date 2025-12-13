@@ -7,18 +7,19 @@ import '../services/product_service.dart';
 class BillingProvider with ChangeNotifier {
   final BillingService _billingService;
   final ProductService _productService;
-  
+
   final List<BillItem> _currentCart = [];
 
   BillingProvider(this._billingService, this._productService);
 
   List<BillItem> get currentCart => _currentCart;
-  
+
   double get cartTotal => _currentCart.fold(0, (sum, item) => sum + item.total);
 
   void addToCart(Product product, {double quantity = 1.0}) {
-    final existingIndex = _currentCart.indexWhere((item) => item.productId == product.id);
-    
+    final existingIndex =
+        _currentCart.indexWhere((item) => item.productId == product.id);
+
     if (existingIndex >= 0) {
       _currentCart[existingIndex].quantity += quantity;
     } else {
@@ -59,13 +60,13 @@ class BillingProvider with ChangeNotifier {
 
   Future<String> finalizeBill() async {
     final billId = await _billingService.saveBill(List.from(_currentCart));
-    
+
     for (var item in _currentCart) {
       await _productService.updateQuantity(item.productId, -item.quantity);
     }
-    
+
     clearCart();
-    
+
     return billId;
   }
 }

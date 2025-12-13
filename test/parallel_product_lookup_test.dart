@@ -31,7 +31,7 @@ void main() {
     test('Should return product from real barcode (Coca Cola)', () async {
       // Coca Cola barcode - should exist in OpenFoodFacts
       final product = await service.lookupProduct('5449000000996');
-      
+
       expect(product, isNotNull);
       expect(product!.isValid, true);
       expect(product.name, isNotEmpty);
@@ -42,10 +42,11 @@ void main() {
 
     test('Should return null for invalid barcode', () async {
       final product = await service.lookupProduct('9999999999999');
-      
+
       // May be null if not found in any API
       if (product != null) {
-        print('⚠️  Unexpectedly found product for test barcode: ${product.name}');
+        print(
+            '⚠️  Unexpectedly found product for test barcode: ${product.name}');
       } else {
         print('✅ Correctly returned null for invalid barcode');
       }
@@ -59,7 +60,7 @@ void main() {
       await service.setApiEnabled('OpenProductFacts', false);
 
       final product = await service.lookupProduct('5449000000996');
-      
+
       expect(product, isNull);
       print('✅ Correctly returned null when all APIs disabled');
 
@@ -72,20 +73,21 @@ void main() {
 
     test('Should call APIs in parallel (performance test)', () async {
       final stopwatch = Stopwatch()..start();
-      
+
       // Use a real barcode
       final product = await service.lookupProduct('5449000000996');
-      
+
       stopwatch.stop();
-      
+
       print('⏱️  Parallel lookup took: ${stopwatch.elapsedMilliseconds}ms');
-      
+
       // Parallel execution should be faster than sequential (< 8 seconds for 4 APIs with 5s timeout each)
       // Sequential would be 20+ seconds, parallel should be ~5-7 seconds
       expect(stopwatch.elapsedMilliseconds, lessThan(12000));
-      
+
       if (product != null) {
-        print('✅ Product found in ${stopwatch.elapsedMilliseconds}ms: ${product.name}');
+        print(
+            '✅ Product found in ${stopwatch.elapsedMilliseconds}ms: ${product.name}');
       }
     }, timeout: const Timeout(Duration(seconds: 15)));
   });

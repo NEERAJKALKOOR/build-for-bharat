@@ -9,7 +9,8 @@ import 'main_navigation_screen.dart';
 class OtpVerificationScreen extends StatefulWidget {
   final String email;
 
-  const OtpVerificationScreen({Key? key, required this.email}) : super(key: key);
+  const OtpVerificationScreen({Key? key, required this.email})
+      : super(key: key);
 
   @override
   State<OtpVerificationScreen> createState() => _OtpVerificationScreenState();
@@ -19,7 +20,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   final List<TextEditingController> _otpControllers =
       List.generate(6, (_) => TextEditingController());
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
-  
+
   bool _isLoading = false;
   bool _isResending = false;
   Timer? _timer;
@@ -78,7 +79,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
   Future<void> _verifyOtp() async {
     final otp = _getOtpCode();
-    
+
     if (otp.length != 6) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

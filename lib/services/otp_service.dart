@@ -6,14 +6,16 @@ import '../models/otp_verification.dart';
 
 class OtpService {
   static const String _otpBoxName = 'otpBox';
-  
+
   // FREE SMTP Configuration - Users should replace with their own Gmail App Password
   // To get Gmail App Password: https://myaccount.google.com/apppasswords
   static const String _smtpUsername = '1ms23ad058@msrit.edu';
-  static const String _smtpPassword = 'zkaqyozdyssywapv'; // Remove spaces from App Password
-  
+  static const String _smtpPassword =
+      'zkaqyozdyssywapv'; // Remove spaces from App Password
+
   // For demo purposes, we'll use a mock mode that doesn't actually send emails
-  static const bool _useMockMode = false; // Set to false to enable real email sending
+  static const bool _useMockMode =
+      false; // Set to false to enable real email sending
   /// Generate a 6-digit OTP
   String _generateOtp() {
     final random = Random();
@@ -25,7 +27,7 @@ class OtpService {
     try {
       final otp = _generateOtp();
       final box = await Hive.openBox<OtpVerification>(_otpBoxName);
-      
+
       // Store OTP in Hive with 5-minute expiry
       final otpVerification = OtpVerification(
         email: email,
@@ -34,9 +36,9 @@ class OtpService {
         expiresAt: DateTime.now().add(const Duration(minutes: 5)),
         isUsed: false,
       );
-      
+
       await box.put(email, otpVerification);
-      
+
       if (_useMockMode) {
         // Mock mode: Print OTP to console for testing
         print('🔐 MOCK OTP for $email: $otp');
@@ -57,7 +59,7 @@ class OtpService {
     try {
       // Configure Gmail SMTP (100% FREE)
       final smtpServer = gmail(_smtpUsername, _smtpPassword);
-      
+
       // Create email message
       final message = Message()
         ..from = Address(_smtpUsername, 'Bharat Store')
@@ -78,7 +80,7 @@ class OtpService {
             </div>
           </div>
         ''';
-      
+
       // Send email
       await send(message, smtpServer);
       print('✅ OTP email sent to $recipientEmail');
@@ -94,26 +96,26 @@ class OtpService {
     try {
       final box = await Hive.openBox<OtpVerification>(_otpBoxName);
       final otpVerification = box.get(email);
-      
+
       if (otpVerification == null) {
         print('❌ No OTP found for $email');
         return false;
       }
-      
+
       if (!otpVerification.isValid) {
         print('❌ OTP expired or already used');
         return false;
       }
-      
+
       if (otpVerification.otp != enteredOtp) {
         print('❌ Invalid OTP');
         return false;
       }
-      
+
       // Mark OTP as used
       otpVerification.isUsed = true;
       await otpVerification.save();
-      
+
       print('✅ OTP verified successfully for $email');
       return true;
     } catch (e) {
@@ -127,11 +129,11 @@ class OtpService {
     try {
       final box = await Hive.openBox<OtpVerification>(_otpBoxName);
       final otpVerification = box.get(email);
-      
+
       if (otpVerification == null || otpVerification.isExpired) {
         return null;
       }
-      
+
       return otpVerification.expiresAt.difference(DateTime.now());
     } catch (e) {
       return null;
@@ -143,16 +145,16 @@ class OtpService {
     try {
       final box = await Hive.openBox<OtpVerification>(_otpBoxName);
       final now = DateTime.now();
-      
+
       final expiredKeys = box.values
           .where((otp) => otp.expiresAt.isBefore(now))
           .map((otp) => otp.email)
           .toList();
-      
+
       for (final key in expiredKeys) {
         await box.delete(key);
       }
-      
+
       print('🗑️ Cleaned up ${expiredKeys.length} expired OTPs');
     } catch (e) {
       print('Error cleaning up OTPs: $e');

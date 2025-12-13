@@ -10,7 +10,8 @@ class AuthProvider with ChangeNotifier {
   bool get isAuthenticated => _isAuthenticated;
   bool get isPinSet => _authService.isPinSet;
 
-  Future<void> createPin(String pin, {String? securityQuestion, String? securityAnswer}) async {
+  Future<void> createPin(String pin,
+      {String? securityQuestion, String? securityAnswer}) async {
     await _authService.createPin(
       pin,
       securityQuestion: securityQuestion,

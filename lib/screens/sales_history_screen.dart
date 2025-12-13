@@ -25,7 +25,8 @@ class SalesHistoryScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.receipt_long_outlined, size: 80, color: Colors.grey[400]),
+                  Icon(Icons.receipt_long_outlined,
+                      size: 80, color: Colors.grey[400]),
                   const SizedBox(height: 16),
                   Text(
                     'No sales yet',
@@ -53,7 +54,8 @@ class SalesHistoryScreen extends StatelessWidget {
                   ),
                   title: Text(
                     currencyFormat.format(bill.total),
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 18),
                   ),
                   subtitle: Text(dateFormat.format(bill.timestamp)),
                   children: [
@@ -69,26 +71,30 @@ class SalesHistoryScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 8),
                           ...bill.items.map((item) => Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text('${item.name} x ${item.quantity}'),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 4),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                          '${item.name} x ${item.quantity}'),
+                                    ),
+                                    Text(
+                                      currencyFormat.format(item.total),
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
                                 ),
-                                Text(
-                                  currencyFormat.format(item.total),
-                                  style: const TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                              ],
-                            ),
-                          )),
+                              )),
                           const Divider(),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text(
                                 'Total:',
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 16),
                               ),
                               Text(
                                 currencyFormat.format(bill.total),

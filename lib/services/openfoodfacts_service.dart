@@ -2,13 +2,16 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class OpenFoodFactsService {
-  static const String baseUrl = 'https://world.openfoodfacts.org/api/v2/product';
+  static const String baseUrl =
+      'https://world.openfoodfacts.org/api/v2/product';
 
   Future<Map<String, dynamic>?> getProductByBarcode(String barcode) async {
     try {
-      final response = await http.get(
-        Uri.parse('$baseUrl/$barcode.json'),
-      ).timeout(const Duration(seconds: 10));
+      final response = await http
+          .get(
+            Uri.parse('$baseUrl/$barcode.json'),
+          )
+          .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);

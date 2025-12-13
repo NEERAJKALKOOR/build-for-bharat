@@ -46,12 +46,14 @@ class _ResetPinScreenState extends State<ResetPinScreen> {
 
     try {
       await context.read<AuthProvider>().resetPinWithSecurity(answer, newPin);
-      
+
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('PIN reset successfully'), backgroundColor: Colors.green),
+        const SnackBar(
+            content: Text('PIN reset successfully'),
+            backgroundColor: Colors.green),
       );
-      
+
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const LoginScreen()),
       );

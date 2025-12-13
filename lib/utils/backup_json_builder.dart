@@ -12,7 +12,7 @@ class BackupJsonBuilder {
     // Access already open boxes or open them if needed
     // Note: Boxes are usually opened in main.dart or services.
     // We'll attempt to open them to be safe.
-    
+
     // Products
     Box<Product> productsBox;
     if (Hive.isBoxOpen('products')) {
@@ -45,11 +45,13 @@ class BackupJsonBuilder {
 
     // Convert auth/settings
     // AuthModel doesn't have toJson, so we map manually
-    final authData = authBox.values.map((a) => {
-      'pinHash': a.pinHash,
-      'securityQuestion': a.securityQuestion,
-      'securityAnswerHash': a.securityAnswerHash,
-    }).toList();
+    final authData = authBox.values
+        .map((a) => {
+              'pinHash': a.pinHash,
+              'securityQuestion': a.securityQuestion,
+              'securityAnswerHash': a.securityAnswerHash,
+            })
+        .toList();
 
     // Construct backup object
     final backup = {
@@ -62,7 +64,8 @@ class BackupJsonBuilder {
     };
 
     final jsonString = jsonEncode(backup);
-    print('✅ Backup JSON built: ${products.length} products, ${bills.length} bills');
+    print(
+        '✅ Backup JSON built: ${products.length} products, ${bills.length} bills');
     return jsonString;
   }
 }

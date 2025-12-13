@@ -11,9 +11,9 @@ class SupabaseBackupService extends ChangeNotifier {
   final _supabase = Supabase.instance.client;
   final BackupJsonBuilder _jsonBuilder = BackupJsonBuilder();
   final BackupJsonReader _jsonReader = BackupJsonReader();
-  
+
   static const String _bucketName = 'backups';
-  
+
   CloudBackupSettings? _settings;
   bool _isLoading = false;
 
@@ -40,7 +40,7 @@ class SupabaseBackupService extends ChangeNotifier {
         email: email,
         password: password,
       );
-      
+
       if (res.session != null) {
         _settings?.userEmail = res.user?.email;
         _settings?.userId = res.user?.id;
@@ -64,12 +64,12 @@ class SupabaseBackupService extends ChangeNotifier {
         email: email,
         password: password,
       );
-       if (res.session != null) {
+      if (res.session != null) {
         _settings?.userEmail = res.user?.email;
         _settings?.userId = res.user?.id;
         _settings?.authToken = res.session?.accessToken;
         _settings?.refreshToken = res.session?.refreshToken;
-         _settings?.cloudBackupEnabled = true;
+        _settings?.cloudBackupEnabled = true;
         await _settings?.save();
         notifyListeners();
       }
@@ -90,7 +90,7 @@ class SupabaseBackupService extends ChangeNotifier {
       await _settings?.save();
       notifyListeners();
     } catch (e) {
-       if (kDebugMode) print("SignOut error: $e");
+      if (kDebugMode) print("SignOut error: $e");
     } finally {
       _setLoading(false);
     }
@@ -103,26 +103,30 @@ class SupabaseBackupService extends ChangeNotifier {
 
   void setUserEmail(String? email) {
     if (_manualUserEmail != email) {
-       _manualUserEmail = email;
-       // If we have a manual email, ensure we consider it enabled if desired, 
-       // but strictly we should just use it for paths.
-       // We won't auto-save settings here to avoid side effects.
-       notifyListeners();
+      _manualUserEmail = email;
+      // If we have a manual email, ensure we consider it enabled if desired,
+      // but strictly we should just use it for paths.
+      // We won't auto-save settings here to avoid side effects.
+      notifyListeners();
     }
   }
 
   String get _effectiveUserId {
-     // Prefer Supabase Auth ID if available, else manual email, else fallback
-     return _supabase.auth.currentUser?.id ?? _manualUserEmail ?? _settings?.userId ?? 'unknown_user';
+    // Prefer Supabase Auth ID if available, else manual email, else fallback
+    return _supabase.auth.currentUser?.id ??
+        _manualUserEmail ??
+        _settings?.userId ??
+        'unknown_user';
   }
 
   // --- Backup Logic ---
 
   Future<void> backupNow() async {
-     // Allow backup if cloud enabled OR if we have a manual email (meaning we want to backup)
-     if (!(_settings?.cloudBackupEnabled ?? false) && _manualUserEmail == null) return;
+    // Allow backup if cloud enabled OR if we have a manual email (meaning we want to backup)
+    if (!(_settings?.cloudBackupEnabled ?? false) && _manualUserEmail == null)
+      return;
     _setLoading(true);
-    
+
     try {
       final String jsonString = await _jsonBuilder.buildBackupJson();
       final Directory tempDir = await getTemporaryDirectory();
@@ -134,15 +138,15 @@ class SupabaseBackupService extends ChangeNotifier {
       final String filePath = '$userId/$fileName';
 
       await _supabase.storage.from(_bucketName).upload(
-        filePath,
-        tempFile,
-        fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
-      );
+            filePath,
+            tempFile,
+            fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
+          );
 
       _settings?.lastBackupTime = DateTime.now();
       _settings?.userId = userId; // Persist used ID
       await _settings?.save();
-      
+
       if (await tempFile.exists()) {
         await tempFile.delete();
       }
@@ -158,9 +162,11 @@ class SupabaseBackupService extends ChangeNotifier {
   Future<List<FileObject>> listBackups() async {
     try {
       final String userId = _effectiveUserId;
-      final List<FileObject> objects = await _supabase.storage.from(_bucketName).list(path: userId);
+      final List<FileObject> objects =
+          await _supabase.storage.from(_bucketName).list(path: userId);
       // Sort by created_at desc
-      objects.sort((a, b) => DateTime.parse(b.createdAt!).compareTo(DateTime.parse(a.createdAt!)));
+      objects.sort((a, b) =>
+          DateTime.parse(b.createdAt!).compareTo(DateTime.parse(a.createdAt!)));
       return objects;
     } catch (e) {
       return [];
@@ -170,14 +176,15 @@ class SupabaseBackupService extends ChangeNotifier {
   Future<void> restoreBackup(String fileName) async {
     _setLoading(true);
     try {
-       final String userId = _effectiveUserId;
-       final String filePath = '$userId/$fileName';
-       
-       // Download file
-       final Uint8List fileBytes = await _supabase.storage.from(_bucketName).download(filePath);
-       final String jsonString = String.fromCharCodes(fileBytes);
-       
-       await _jsonReader.restoreFromJson(jsonString);
+      final String userId = _effectiveUserId;
+      final String filePath = '$userId/$fileName';
+
+      // Download file
+      final Uint8List fileBytes =
+          await _supabase.storage.from(_bucketName).download(filePath);
+      final String jsonString = String.fromCharCodes(fileBytes);
+
+      await _jsonReader.restoreFromJson(jsonString);
     } catch (e) {
       rethrow;
     } finally {

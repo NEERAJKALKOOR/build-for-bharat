@@ -22,7 +22,8 @@ class ProductService {
   Product? getProductByBarcode(String barcode) {
     return _box?.values.firstWhere(
       (p) => p.barcode == barcode,
-      orElse: () => Product(id: '', name: '', price: 0, quantity: 0, threshold: 0),
+      orElse: () =>
+          Product(id: '', name: '', price: 0, quantity: 0, threshold: 0),
     );
   }
 
@@ -43,14 +44,15 @@ class ProductService {
 
   List<Product> getLowStockProducts() {
     return _box?.values.where((p) {
-      // ignore: unnecessary_null_comparison
-      if (p == null) return false;
-      try {
-        return p.isLowStock;
-      } catch (e) {
-        return false;
-      }
-    }).toList() ?? [];
+          // ignore: unnecessary_null_comparison
+          if (p == null) return false;
+          try {
+            return p.isLowStock;
+          } catch (e) {
+            return false;
+          }
+        }).toList() ??
+        [];
   }
 
   Future<void> updateQuantity(String productId, double quantityChange) async {
@@ -65,13 +67,14 @@ class ProductService {
     return getAllProducts().map((p) => p.toJson()).toList();
   }
 
-  Future<void> importFromJson(List<dynamic> jsonList, {bool merge = true}) async {
+  Future<void> importFromJson(List<dynamic> jsonList,
+      {bool merge = true}) async {
     for (var json in jsonList) {
       final product = Product.fromJson(json);
       if (merge) {
-        final existing = product.barcode != null 
-          ? getProductByBarcode(product.barcode!)
-          : getProduct(product.id);
+        final existing = product.barcode != null
+            ? getProductByBarcode(product.barcode!)
+            : getProduct(product.id);
         if (existing?.id.isNotEmpty ?? false) continue;
       }
       await addProduct(product);

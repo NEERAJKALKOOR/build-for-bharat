@@ -44,7 +44,7 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
         controller: controller,
         onDetect: (capture) {
           if (_isProcessing) return; // Already processing a barcode
-          
+
           final List<Barcode> barcodes = capture.barcodes;
           if (barcodes.isNotEmpty) {
             final barcode = barcodes.first.rawValue;

@@ -33,84 +33,108 @@ class _BillingScreenState extends State<BillingScreen> {
         return StatefulBuilder(
           builder: (BuildContext _, StateSetter setState) {
             return AlertDialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)),
               title: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Add to Cart', style: TextStyle(fontSize: 14, color: Colors.grey)),
+                  const Text('Add to Cart',
+                      style: TextStyle(fontSize: 14, color: Colors.grey)),
                   const SizedBox(height: 4),
-                  Text(product.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                  Text(product.name,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 20)),
                 ],
               ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                   Container(
-                     padding: const EdgeInsets.all(12),
-                     decoration: BoxDecoration(
-                       color: AppTheme.backgroundLight,
-                       borderRadius: BorderRadius.circular(12),
-                     ),
-                     child: Row(
-                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                       children: [
-                         const Text('Price/Unit', style: TextStyle(color: Colors.grey)),
-                         Text('₹${product.price.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold)),
-                       ],
-                     ),
-                   ),
-                   const SizedBox(height: 16),
-                   TextField(
-                     controller: controller,
-                     keyboardType: TextInputType.numberWithOptions(decimal: allowDecimal),
-                     textAlign: TextAlign.center,
-                     style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue),
-                     autofocus: true,
-                     decoration: InputDecoration(
-                       filled: true,
-                       fillColor: Colors.white,
-                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade300)),
-                       prefixIcon: IconButton(
-                         icon: const Icon(Icons.remove_circle, color: Colors.grey),
-                         onPressed: () {
-                              double current = double.tryParse(controller.text) ?? 1.0;
-                              double decrement = allowDecimal ? 0.1 : 1.0;
-                              if (current > decrement) {
-                                quantity = current - decrement;
-                                controller.text = allowDecimal ? quantity.toStringAsFixed(2) : quantity.toInt().toString();
-                                setState(() {});
-                              }
-                         },
-                       ),
-                       suffixIcon: IconButton(
-                         icon: const Icon(Icons.add_circle, color: AppTheme.primaryBlue),
-                         onPressed: () {
-                              double current = double.tryParse(controller.text) ?? 1.0;
-                              double increment = allowDecimal ? 0.1 : 1.0;
-                              if (current < product.quantity) {
-                                quantity = current + increment;
-                                controller.text = allowDecimal ? quantity.toStringAsFixed(2) : quantity.toInt().toString();
-                                setState(() {});
-                              }
-                         },
-                       ),
-                     ),
-                     onChanged: (val) {
-                       quantity = double.tryParse(val) ?? 1.0;
-                       setState((){});
-                     },
-                   ),
-                   const SizedBox(height: 16),
-                   Row(
-                     mainAxisAlignment: MainAxisAlignment.center,
-                     children: [
-                       const Text('Total: ', style: TextStyle(fontSize: 16)),
-                       Text(
-                         '₹${(product.price * (double.tryParse(controller.text) ?? 1.0)).toStringAsFixed(2)}',
-                         style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue),
-                       ),
-                     ],
-                   ),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppTheme.backgroundLight,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('Price/Unit',
+                            style: TextStyle(color: Colors.grey)),
+                        Text('₹${product.price.toStringAsFixed(2)}',
+                            style:
+                                const TextStyle(fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: controller,
+                    keyboardType:
+                        TextInputType.numberWithOptions(decimal: allowDecimal),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.primaryBlue),
+                    autofocus: true,
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.grey.shade300)),
+                      prefixIcon: IconButton(
+                        icon:
+                            const Icon(Icons.remove_circle, color: Colors.grey),
+                        onPressed: () {
+                          double current =
+                              double.tryParse(controller.text) ?? 1.0;
+                          double decrement = allowDecimal ? 0.1 : 1.0;
+                          if (current > decrement) {
+                            quantity = current - decrement;
+                            controller.text = allowDecimal
+                                ? quantity.toStringAsFixed(2)
+                                : quantity.toInt().toString();
+                            setState(() {});
+                          }
+                        },
+                      ),
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.add_circle,
+                            color: AppTheme.primaryBlue),
+                        onPressed: () {
+                          double current =
+                              double.tryParse(controller.text) ?? 1.0;
+                          double increment = allowDecimal ? 0.1 : 1.0;
+                          if (current < product.quantity) {
+                            quantity = current + increment;
+                            controller.text = allowDecimal
+                                ? quantity.toStringAsFixed(2)
+                                : quantity.toInt().toString();
+                            setState(() {});
+                          }
+                        },
+                      ),
+                    ),
+                    onChanged: (val) {
+                      quantity = double.tryParse(val) ?? 1.0;
+                      setState(() {});
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text('Total: ', style: TextStyle(fontSize: 16)),
+                      Text(
+                        '₹${(product.price * (double.tryParse(controller.text) ?? 1.0)).toStringAsFixed(2)}',
+                        style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.primaryBlue),
+                      ),
+                    ],
+                  ),
                 ],
               ),
               actions: [
@@ -126,9 +150,11 @@ class _BillingScreenState extends State<BillingScreen> {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.primaryBlue,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
                   ),
-                  child: const Text('ADD TO CART', style: TextStyle(color: Colors.white)),
+                  child: const Text('ADD TO CART',
+                      style: TextStyle(color: Colors.white)),
                 ),
               ],
             );
@@ -152,12 +178,14 @@ class _BillingScreenState extends State<BillingScreen> {
         if (product.quantity > 0) {
           final quantity = await _showQuantityDialog(product);
           if (quantity != null && mounted) {
-             if (quantity > product.quantity) {
-                _showSnack('Only ${product.quantity} available', isError: true);
-                return;
-             }
-             context.read<BillingProvider>().addToCart(product, quantity: quantity);
-             _showSnack('${product.name} added to cart');
+            if (quantity > product.quantity) {
+              _showSnack('Only ${product.quantity} available', isError: true);
+              return;
+            }
+            context
+                .read<BillingProvider>()
+                .addToCart(product, quantity: quantity);
+            _showSnack('${product.name} added to cart');
           }
         } else {
           _showSnack('Product out of stock', isError: true);
@@ -173,8 +201,8 @@ class _BillingScreenState extends State<BillingScreen> {
       final quantity = await _showQuantityDialog(product);
       if (quantity != null && mounted) {
         if (quantity > product.quantity) {
-           _showSnack('Stock limit reached', isError: true);
-           return;
+          _showSnack('Stock limit reached', isError: true);
+          return;
         }
         context.read<BillingProvider>().addToCart(product, quantity: quantity);
         _showSnack('${product.name} added');
@@ -185,7 +213,7 @@ class _BillingScreenState extends State<BillingScreen> {
   }
 
   void _showSnack(String msg, {bool isError = false}) {
-    if(!mounted) return;
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(msg),
       backgroundColor: isError ? Colors.red : AppTheme.primaryBlue,
@@ -202,7 +230,8 @@ class _BillingScreenState extends State<BillingScreen> {
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
-        title: const Text('New Bill', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+        title: const Text('New Bill',
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
@@ -237,9 +266,11 @@ class _BillingScreenState extends State<BillingScreen> {
                         hintText: 'Search products...',
                         prefixIcon: Icon(Icons.search, color: Colors.grey),
                         border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                       ),
-                      onChanged: (val) => setState(() => _searchQuery = val.toLowerCase()),
+                      onChanged: (val) =>
+                          setState(() => _searchQuery = val.toLowerCase()),
                     ),
                   ),
                 ),
@@ -253,25 +284,30 @@ class _BillingScreenState extends State<BillingScreen> {
                     decoration: BoxDecoration(
                       color: AppTheme.primaryBlue.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.3)),
+                      border: Border.all(
+                          color: AppTheme.primaryBlue.withOpacity(0.3)),
                     ),
-                    child: const Icon(Icons.qr_code_scanner, color: AppTheme.primaryBlue),
+                    child: const Icon(Icons.qr_code_scanner,
+                        color: AppTheme.primaryBlue),
                   ),
                 ),
               ],
             ),
           ),
-          
+
           // Products Grid
           Expanded(
             child: Consumer<InventoryProvider>(
               builder: (context, inventory, _) {
-                var products = inventory.products.where((p) => p.quantity > 0).toList();
+                var products =
+                    inventory.products.where((p) => p.quantity > 0).toList();
                 if (_searchQuery.isNotEmpty) {
-                  products = products.where((p) => 
-                     p.name.toLowerCase().contains(_searchQuery) || 
-                     (p.barcode?.toLowerCase().contains(_searchQuery) ?? false)
-                  ).toList();
+                  products = products
+                      .where((p) =>
+                          p.name.toLowerCase().contains(_searchQuery) ||
+                          (p.barcode?.toLowerCase().contains(_searchQuery) ??
+                              false))
+                      .toList();
                 }
 
                 if (products.isEmpty) {
@@ -279,9 +315,12 @@ class _BillingScreenState extends State<BillingScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.remove_shopping_cart, size: 64, color: Colors.grey[300]),
+                        Icon(Icons.remove_shopping_cart,
+                            size: 64, color: Colors.grey[300]),
                         const SizedBox(height: 16),
-                        Text('No products found', style: TextStyle(color: Colors.grey[500], fontSize: 16)),
+                        Text('No products found',
+                            style: TextStyle(
+                                color: Colors.grey[500], fontSize: 16)),
                       ],
                     ),
                   );
@@ -296,7 +335,8 @@ class _BillingScreenState extends State<BillingScreen> {
                     childAspectRatio: 0.8,
                   ),
                   itemCount: products.length,
-                  itemBuilder: (context, index) => _buildProductCard(products[index], currencyFormat),
+                  itemBuilder: (context, index) =>
+                      _buildProductCard(products[index], currencyFormat),
                 );
               },
             ),
@@ -306,48 +346,68 @@ class _BillingScreenState extends State<BillingScreen> {
           Consumer<BillingProvider>(
             builder: (context, billing, _) {
               if (billing.currentCart.isEmpty) return const SizedBox.shrink();
-              
+
               return Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, -5))],
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 20,
+                        offset: const Offset(0, -5))
+                  ],
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(24)),
                 ),
                 child: SafeArea(
                   child: Row(
                     children: [
                       Container(
                         padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(color: Colors.orange[50], shape: BoxShape.circle),
-                        child: Text('${billing.currentCart.length}', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.orange)),
+                        decoration: BoxDecoration(
+                            color: Colors.orange[50], shape: BoxShape.circle),
+                        child: Text('${billing.currentCart.length}',
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.orange)),
                       ),
                       const SizedBox(width: 16),
                       Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Total', style: TextStyle(fontSize: 12, color: Colors.grey)),
-                          Text(currencyFormat.format(billing.cartTotal), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                          const Text('Total',
+                              style:
+                                  TextStyle(fontSize: 12, color: Colors.grey)),
+                          Text(currencyFormat.format(billing.cartTotal),
+                              style: const TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold)),
                         ],
                       ),
                       const Spacer(),
                       ElevatedButton(
-                        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BillingCartScreen())),
+                        onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const BillingCartScreen())),
                         style: ElevatedButton.styleFrom(
-                           backgroundColor: AppTheme.primaryBlue,
-                           foregroundColor: Colors.white,
-                           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                           elevation: 4,
-                           shadowColor: AppTheme.primaryBlue.withOpacity(0.4),
+                          backgroundColor: AppTheme.primaryBlue,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                          elevation: 4,
+                          shadowColor: AppTheme.primaryBlue.withOpacity(0.4),
                         ),
                         child: const Row(
-                           children: [
-                              Text('Checkout', style: TextStyle(fontWeight: FontWeight.bold)),
-                              SizedBox(width: 8),
-                              Icon(Icons.arrow_forward_rounded, size: 18),
-                           ],
+                          children: [
+                            Text('Checkout',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            SizedBox(width: 8),
+                            Icon(Icons.arrow_forward_rounded, size: 18),
+                          ],
                         ),
                       )
                     ],
@@ -368,46 +428,63 @@ class _BillingScreenState extends State<BillingScreen> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
-          boxShadow: const [BoxShadow(color: Color(0x08000000), blurRadius: 10, offset: Offset(0, 4))],
+          boxShadow: const [
+            BoxShadow(
+                color: Color(0x08000000), blurRadius: 10, offset: Offset(0, 4))
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-             Expanded(
-               child: Container(
-                 decoration: BoxDecoration(
-                    color: AppTheme.primaryBlue.withOpacity(0.05),
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                 ),
-                 child: Center(
-                    child: Text(
-                      product.name[0].toUpperCase(),
-                      style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue.withOpacity(0.4)),
-                    ),
-                 ),
-               ),
-             ),
-             Padding(
-               padding: const EdgeInsets.all(12),
-               child: Column(
-                 crossAxisAlignment: CrossAxisAlignment.start,
-                 children: [
-                   Text(product.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                   Text(
-                     '${format.format(product.price)} / ${product.unit}',
-                     style: const TextStyle(color: AppTheme.primaryBlue, fontWeight: FontWeight.w600, fontSize: 13),
-                   ),
-                   const SizedBox(height: 4),
-                   Row(
-                      children: [
-                        Icon(Icons.inventory_2_outlined, size: 12, color: Colors.grey[400]),
-                        const SizedBox(width: 4),
-                        Text('${product.quantity} left', style: TextStyle(fontSize: 11, color: Colors.grey[500])),
-                      ],
-                   ),
-                 ],
-               ),
-             ),
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryBlue.withOpacity(0.05),
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(20)),
+                ),
+                child: Center(
+                  child: Text(
+                    product.name[0].toUpperCase(),
+                    style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.primaryBlue.withOpacity(0.4)),
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(product.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 15)),
+                  Text(
+                    '${format.format(product.price)} / ${product.unit}',
+                    style: const TextStyle(
+                        color: AppTheme.primaryBlue,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(Icons.inventory_2_outlined,
+                          size: 12, color: Colors.grey[400]),
+                      const SizedBox(width: 4),
+                      Text('${product.quantity} left',
+                          style:
+                              TextStyle(fontSize: 11, color: Colors.grey[500])),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),

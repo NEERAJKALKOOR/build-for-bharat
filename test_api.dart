@@ -4,12 +4,12 @@ import 'package:hive_flutter/hive_flutter.dart';
 /// Quick test script to verify the Parallel Product Lookup API
 void main() async {
   print('🧪 Testing Parallel Product Lookup API...\n');
-  
+
   // Initialize Hive
   await Hive.initFlutter();
-  
+
   final service = ParallelProductLookupService();
-  
+
   // Test barcodes
   final testBarcodes = {
     'Nutella': '3017620422003',
@@ -18,17 +18,17 @@ void main() async {
     'Whiskas Cat Food': '5000213007174',
     'Invalid Product': '1234567890123',
   };
-  
+
   for (final entry in testBarcodes.entries) {
     print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     print('Testing: ${entry.key}');
     print('Barcode: ${entry.value}');
     print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    
+
     final stopwatch = Stopwatch()..start();
     final product = await service.lookupProduct(entry.value);
     stopwatch.stop();
-    
+
     if (product != null && product.isValid) {
       print('✅ SUCCESS (${stopwatch.elapsedMilliseconds}ms)');
       print('   Name: ${product.name}');
@@ -42,10 +42,10 @@ void main() async {
     }
     print('');
   }
-  
+
   print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   print('✅ API Test Complete!');
   print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  
+
   await Hive.close();
 }

@@ -40,7 +40,8 @@ class _FinalizeBillScreenState extends State<FinalizeBillScreen> {
         barrierDismissible: false,
         builder: (context) => AlertDialog(
           title: const Text('✓ Bill Saved'),
-          content: const Text('Transaction completed successfully!\nInventory has been updated.'),
+          content: const Text(
+              'Transaction completed successfully!\nInventory has been updated.'),
           actions: [
             TextButton(
               onPressed: () {
@@ -95,30 +96,34 @@ class _FinalizeBillScreenState extends State<FinalizeBillScreen> {
                       children: [
                         const Text(
                           'Bill Summary',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                         const Divider(),
                         ...cart.map((item) => Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Text('${item.name} x ${item.quantity}'),
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child:
+                                        Text('${item.name} x ${item.quantity}'),
+                                  ),
+                                  Text(
+                                    currencyFormat.format(item.total),
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ],
                               ),
-                              Text(
-                                currencyFormat.format(item.total),
-                                style: const TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                        )),
+                            )),
                         const Divider(),
                         Row(
                           children: [
                             const Expanded(
                               child: Text(
                                 'TOTAL',
-                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold),
                               ),
                             ),
                             Text(
@@ -144,7 +149,8 @@ class _FinalizeBillScreenState extends State<FinalizeBillScreen> {
                       children: [
                         const Text(
                           'Payment Options',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 12),
                         TextField(
@@ -157,9 +163,13 @@ class _FinalizeBillScreenState extends State<FinalizeBillScreen> {
                         ),
                         const SizedBox(height: 12),
                         ElevatedButton.icon(
-                          onPressed: () => setState(() => _showUpiQr = !_showUpiQr),
-                          icon: Icon(_showUpiQr ? Icons.qr_code : Icons.qr_code_scanner),
-                          label: Text(_showUpiQr ? 'HIDE UPI QR' : 'GENERATE UPI QR'),
+                          onPressed: () =>
+                              setState(() => _showUpiQr = !_showUpiQr),
+                          icon: Icon(_showUpiQr
+                              ? Icons.qr_code
+                              : Icons.qr_code_scanner),
+                          label: Text(
+                              _showUpiQr ? 'HIDE UPI QR' : 'GENERATE UPI QR'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blue,
                           ),
@@ -183,7 +193,8 @@ class _FinalizeBillScreenState extends State<FinalizeBillScreen> {
                                 const SizedBox(height: 8),
                                 Text(
                                   'Scan to pay ${currencyFormat.format(total)}',
-                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold),
                                 ),
                               ],
                             ),
@@ -201,8 +212,8 @@ class _FinalizeBillScreenState extends State<FinalizeBillScreen> {
                     backgroundColor: Colors.green,
                   ),
                   child: _isProcessing
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text('CONFIRM & SAVE BILL'),
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text('CONFIRM & SAVE BILL'),
                 ),
               ],
             ),

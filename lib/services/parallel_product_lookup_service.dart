@@ -4,7 +4,8 @@ import '../models/product_data.dart';
 
 class ParallelProductLookupService {
   // API Base URL
-  static const String _openFoodFactsUrl = 'https://world.openfoodfacts.org/api/v2/product';
+  static const String _openFoodFactsUrl =
+      'https://world.openfoodfacts.org/api/v2/product';
 
   /// Main method: Lookup product from OpenFoodFacts API
   Future<ProductData?> lookupProduct(String barcode) async {
@@ -19,7 +20,8 @@ class ParallelProductLookupService {
       final productData = await _fetchFromFoodFacts(barcode);
 
       if (productData != null && productData.isValid) {
-        print('✅ Product found: ${productData.name} (source: ${productData.source})');
+        print(
+            '✅ Product found: ${productData.name} (source: ${productData.source})');
         return productData;
       }
 

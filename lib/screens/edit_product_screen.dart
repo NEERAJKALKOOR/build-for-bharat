@@ -27,12 +27,17 @@ class _EditProductScreenState extends State<EditProductScreen> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.product.name);
-    _barcodeController = TextEditingController(text: widget.product.barcode ?? '');
-    _priceController = TextEditingController(text: widget.product.price.toString());
-    _quantityController = TextEditingController(text: widget.product.quantity.toString());
-    _thresholdController = TextEditingController(text: widget.product.threshold.toString());
+    _barcodeController =
+        TextEditingController(text: widget.product.barcode ?? '');
+    _priceController =
+        TextEditingController(text: widget.product.price.toString());
+    _quantityController =
+        TextEditingController(text: widget.product.quantity.toString());
+    _thresholdController =
+        TextEditingController(text: widget.product.threshold.toString());
     _brandController = TextEditingController(text: widget.product.brand ?? '');
-    _categoryController = TextEditingController(text: widget.product.category ?? '');
+    _categoryController =
+        TextEditingController(text: widget.product.category ?? '');
   }
 
   @override
@@ -53,20 +58,28 @@ class _EditProductScreenState extends State<EditProductScreen> {
     final updatedProduct = Product(
       id: widget.product.id,
       name: _nameController.text.trim(),
-      barcode: _barcodeController.text.trim().isEmpty ? null : _barcodeController.text.trim(),
+      barcode: _barcodeController.text.trim().isEmpty
+          ? null
+          : _barcodeController.text.trim(),
       price: double.parse(_priceController.text),
       quantity: double.parse(_quantityController.text),
       threshold: int.parse(_thresholdController.text),
       imageUrl: widget.product.imageUrl,
-      brand: _brandController.text.trim().isEmpty ? null : _brandController.text.trim(),
-      category: _categoryController.text.trim().isEmpty ? null : _categoryController.text.trim(),
+      brand: _brandController.text.trim().isEmpty
+          ? null
+          : _brandController.text.trim(),
+      category: _categoryController.text.trim().isEmpty
+          ? null
+          : _categoryController.text.trim(),
     );
 
     await context.read<InventoryProvider>().updateProduct(updatedProduct);
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Product updated successfully'), backgroundColor: Colors.green),
+        const SnackBar(
+            content: Text('Product updated successfully'),
+            backgroundColor: Colors.green),
       );
       Navigator.pop(context);
     }
@@ -96,7 +109,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
       await context.read<InventoryProvider>().deleteProduct(widget.product.id);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Product deleted'), backgroundColor: Colors.red),
+          const SnackBar(
+              content: Text('Product deleted'), backgroundColor: Colors.red),
         );
         Navigator.pop(context);
       }
@@ -148,9 +162,11 @@ class _EditProductScreenState extends State<EditProductScreen> {
                         labelText: 'Price (₹) *',
                         prefixIcon: Icon(Icons.currency_rupee),
                       ),
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
                       inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+                        FilteringTextInputFormatter.allow(
+                            RegExp(r'^\d+\.?\d{0,2}')),
                       ],
                       validator: (v) {
                         if (v?.trim().isEmpty ?? true) return 'Required';
@@ -167,9 +183,11 @@ class _EditProductScreenState extends State<EditProductScreen> {
                         labelText: 'Quantity *',
                         prefixIcon: Icon(Icons.inventory),
                       ),
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
                       inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+                        FilteringTextInputFormatter.allow(
+                            RegExp(r'^\d+\.?\d{0,2}')),
                       ],
                       validator: (v) {
                         if (v?.trim().isEmpty ?? true) return 'Required';

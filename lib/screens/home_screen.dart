@@ -61,35 +61,50 @@ class HomeScreen extends StatelessWidget {
                         'Inventory',
                         Icons.inventory_2,
                         Colors.blue,
-                        () => Navigator.push(context, MaterialPageRoute(builder: (_) => const InventoryListScreen())),
+                        () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const InventoryListScreen())),
                       ),
                       _buildMenuTile(
                         context,
                         'Billing',
                         Icons.receipt_long,
                         Colors.green,
-                        () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BillingScreen())),
+                        () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const BillingScreen())),
                       ),
                       _buildMenuTile(
                         context,
                         'Analytics',
                         Icons.analytics,
                         Colors.purple,
-                        () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AnalyticsScreen())),
+                        () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const AnalyticsScreen())),
                       ),
                       _buildMenuTile(
                         context,
                         'Share/Export',
                         Icons.share,
                         Colors.orange,
-                        () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ExportImportScreen())),
+                        () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const ExportImportScreen())),
                       ),
                       _buildMenuTile(
                         context,
                         'Settings',
                         Icons.settings,
                         Colors.grey,
-                        () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen())),
+                        () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const SettingsScreen())),
                       ),
                     ],
                   ),
@@ -102,7 +117,8 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMenuTile(BuildContext context, String title, IconData icon, Color color, VoidCallback onTap) {
+  Widget _buildMenuTile(BuildContext context, String title, IconData icon,
+      Color color, VoidCallback onTap) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

@@ -17,12 +17,12 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _currentIndex = 0;
 
   List<Widget> get _screens => const [
-    DashboardScreen(),
-    InventoryListScreen(),
-    BillingScreen(),
-    AnalyticsScreen(),
-    SettingsScreen(),
-  ];
+        DashboardScreen(),
+        InventoryListScreen(),
+        BillingScreen(),
+        AnalyticsScreen(),
+        SettingsScreen(),
+      ];
 
   @override
   Widget build(BuildContext context) {

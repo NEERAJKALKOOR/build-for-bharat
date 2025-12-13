@@ -31,13 +31,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _initBackupService() async {
     await _backupService.init();
-    
+
     // Check if user is already verified in app
     final session = await SessionManager().getCurrentSession();
     if (session != null && session.isValid) {
       _backupService.setUserEmail(session.email);
     }
-    
+
     _loadBackupSettings();
     _backupService.addListener(_loadBackupSettings);
   }
@@ -56,26 +56,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _toggleBackup(bool value) async {
     if (_backupSettings == null) return;
-    
+
     final session = await SessionManager().getCurrentSession();
     final String? userEmail = session?.email ?? _backupSettings?.userEmail;
 
     if (value && userEmail == null) {
-       _showAuthDialog();
+      _showAuthDialog();
     } else {
-       if (value && userEmail != null) {
-          _backupService.setUserEmail(userEmail);
-       }
-       _backupSettings!.cloudBackupEnabled = value;
-       await _backupSettings!.save();
-       _loadBackupSettings();
+      if (value && userEmail != null) {
+        _backupService.setUserEmail(userEmail);
+      }
+      _backupSettings!.cloudBackupEnabled = value;
+      await _backupSettings!.save();
+      _loadBackupSettings();
     }
   }
 
   void _showAuthDialog() {
     final emailCtrl = TextEditingController();
     final passCtrl = TextEditingController();
-    
+
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -83,15 +83,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(controller: emailCtrl, decoration: const InputDecoration(labelText: 'Email')),
+            TextField(
+                controller: emailCtrl,
+                decoration: const InputDecoration(labelText: 'Email')),
             const SizedBox(height: 12),
-            TextField(controller: passCtrl, decoration: const InputDecoration(labelText: 'Password'), obscureText: true),
+            TextField(
+                controller: passCtrl,
+                decoration: const InputDecoration(labelText: 'Password'),
+                obscureText: true),
           ],
         ),
         actions: [
           TextButton(
-             onPressed: () => Navigator.pop(ctx),
-             child: const Text('CANCEL'),
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('CANCEL'),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -99,9 +104,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               setState(() => _isLoading = true);
               try {
                 try {
-                  await _backupService.signIn(emailCtrl.text.trim(), passCtrl.text.trim());
+                  await _backupService.signIn(
+                      emailCtrl.text.trim(), passCtrl.text.trim());
                 } catch (e) {
-                   await _backupService.signUp(emailCtrl.text.trim(), passCtrl.text.trim());
+                  await _backupService.signUp(
+                      emailCtrl.text.trim(), passCtrl.text.trim());
                 }
               } catch (e) {
                 _showError('Auth failed: ${e.toString()}');
@@ -154,14 +161,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
       final selected = await showModalBottomSheet<FileObject>(
         context: context,
         backgroundColor: Colors.white,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
         builder: (ctx) => Container(
           padding: const EdgeInsets.all(16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Restore from Backup', style: Theme.of(context).textTheme.titleLarge),
+              Text('Restore from Backup',
+                  style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 16),
               Expanded(
                 child: ListView.builder(
@@ -169,8 +178,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   itemCount: files.length,
                   itemBuilder: (ctx, i) {
                     final file = files[i];
-                    final dateStr = DateFormat('MMM d, y • HH:mm').format(DateTime.parse(file.createdAt!));
-                    
+                    final dateStr = DateFormat('MMM d, y • HH:mm')
+                        .format(DateTime.parse(file.createdAt!));
+
                     return ListTile(
                       contentPadding: EdgeInsets.zero,
                       leading: Container(
@@ -179,10 +189,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           color: AppTheme.primaryBlue.withOpacity(0.1),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.cloud_download, color: AppTheme.primaryBlue, size: 20),
+                        child: const Icon(Icons.cloud_download,
+                            color: AppTheme.primaryBlue, size: 20),
                       ),
-                      title: Text(dateStr, style: const TextStyle(fontWeight: FontWeight.w600)),
-                      subtitle: Text(file.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+                      title: Text(dateStr,
+                          style: const TextStyle(fontWeight: FontWeight.w600)),
+                      subtitle: Text(file.name,
+                          maxLines: 1, overflow: TextOverflow.ellipsis),
                       onTap: () => Navigator.pop(ctx, file),
                     );
                   },
@@ -194,13 +207,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
       );
 
       if (selected != null) {
-         setState(() => _isLoading = true);
-         await _backupService.restoreBackup(selected.name);
-         if (mounted) {
-            _showSuccess('Restore complete. Please restart app.');
-         }
+        setState(() => _isLoading = true);
+        await _backupService.restoreBackup(selected.name);
+        if (mounted) {
+          _showSuccess('Restore complete. Please restart app.');
+        }
       }
-
     } catch (e) {
       _showError(e.toString());
     } finally {
@@ -224,7 +236,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Row(children: [const Icon(Icons.check_circle, color: Colors.white, size: 20), const SizedBox(width: 8), Text(message)]),
+        content: Row(children: [
+          const Icon(Icons.check_circle, color: Colors.white, size: 20),
+          const SizedBox(width: 8),
+          Text(message)
+        ]),
         backgroundColor: AppTheme.primaryBlue,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -235,88 +251,98 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _chaosMode ? Colors.purpleAccent : AppTheme.backgroundLight,
+      backgroundColor:
+          _chaosMode ? Colors.purpleAccent : AppTheme.backgroundLight,
       appBar: AppBar(
         elevation: 0,
         backgroundColor: _chaosMode ? Colors.orange : AppTheme.backgroundLight,
         foregroundColor: Colors.black,
-        title: _chaosMode 
-             ? Transform.rotate(angle: 0.1, child: const Text('S3tt1ngs!?', style: TextStyle(color: Colors.red, fontWeight: FontWeight.w900, fontSize: 24)))
-             : const Text('Settings', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+        title: _chaosMode
+            ? Transform.rotate(
+                angle: 0.1,
+                child: const Text('S3tt1ngs!?',
+                    style: TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 24)))
+            : const Text('Settings',
+                style: TextStyle(
+                    color: Colors.black, fontWeight: FontWeight.bold)),
         centerTitle: true,
       ),
-      body: _isLoading 
-        ? const Center(child: CircularProgressIndicator(color: AppTheme.primaryBlue)) 
-        : MediaQuery(
-            data: MediaQuery.of(context).copyWith(
-              textScaler: _chaosMode 
-                  ? TextScaler.linear(math.Random().nextDouble() * 1.5 + 0.8) // Random scale 0.8x to 2.3x
-                  : TextScaler.noScaling,
-            ),
-            child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildSectionHeader('Cloud Sync'),
-                _buildCloudBackupCard(),
-                
-                const SizedBox(height: 24),
-                _buildSectionHeader('Data Management'),
-                _buildDataManagementCard(),
-
-                const SizedBox(height: 24),
-                _buildSectionHeader('Account'),
-                _buildAccountCard(),
-
-                const SizedBox(height: 24),
-                _buildSectionHeader('App Info'),
-                _buildAppInfoCard(),
-                
-                const SizedBox(height: 24),
-                _buildSectionHeader('Danger Zone'),
-                _buildCard(
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(color: AppTheme.primaryBlue))
+          : MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                textScaler: _chaosMode
+                    ? TextScaler.linear(math.Random().nextDouble() * 1.5 +
+                        0.8) // Random scale 0.8x to 2.3x
+                    : TextScaler.noScaling,
+              ),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SwitchListTile(
-                      title: Text(_chaosMode ? 'CHAOS ACTIVE !!!' : 'Chaos Mode', style: TextStyle(color: _chaosMode ? Colors.red : Colors.black, fontWeight: FontWeight.bold)),
-                      subtitle: const Text('Do not touch this toggle'),
-                      value: _chaosMode,
-                      secondary: Icon(Icons.flash_on, color: _chaosMode ? Colors.red : Colors.amber),
-                      activeColor: Colors.red,
-                      onChanged: (val) {
-                         setState(() => _chaosMode = val);
-                      },
-                    )
-                  ]
+                    _buildSectionHeader('Cloud Sync'),
+                    _buildCloudBackupCard(),
+                    const SizedBox(height: 24),
+                    _buildSectionHeader('Data Management'),
+                    _buildDataManagementCard(),
+                    const SizedBox(height: 24),
+                    _buildSectionHeader('Account'),
+                    _buildAccountCard(),
+                    const SizedBox(height: 24),
+                    _buildSectionHeader('App Info'),
+                    _buildAppInfoCard(),
+                    const SizedBox(height: 24),
+                    _buildSectionHeader('Danger Zone'),
+                    _buildCard(children: [
+                      SwitchListTile(
+                        title: Text(
+                            _chaosMode ? 'CHAOS ACTIVE !!!' : 'Chaos Mode',
+                            style: TextStyle(
+                                color: _chaosMode ? Colors.red : Colors.black,
+                                fontWeight: FontWeight.bold)),
+                        subtitle: const Text('Do not touch this toggle'),
+                        value: _chaosMode,
+                        secondary: Icon(Icons.flash_on,
+                            color: _chaosMode ? Colors.red : Colors.amber),
+                        activeColor: Colors.red,
+                        onChanged: (val) {
+                          setState(() => _chaosMode = val);
+                        },
+                      )
+                    ]),
+                    const SizedBox(height: 40),
+                    Center(
+                      child: Text(
+                        'BharatStore v1.0.0',
+                        style: TextStyle(color: Colors.grey[400], fontSize: 12),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                  ],
                 ),
-
-                const SizedBox(height: 40),
-                Center(
-                  child: Text(
-                    'BharatStore v1.0.0',
-                    style: TextStyle(color: Colors.grey[400], fontSize: 12),
-                  ),
-                ),
-                const SizedBox(height: 20),
-              ],
+              ),
             ),
-          ),
-        ),
     );
   }
 
   Widget _buildSectionHeader(String title) {
     if (_chaosMode) {
-       return Padding(
-         padding: const EdgeInsets.all(8.0),
-         child: Transform.scale(
-           scale: 1.2,
-           child: Text(
-             title.split('').reversed.join(),
-             style: const TextStyle(fontSize: 18, color: Colors.pink, fontWeight: FontWeight.bold),
-           ),
-         ),
-       );
+      return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Transform.scale(
+          scale: 1.2,
+          child: Text(
+            title.split('').reversed.join(),
+            style: const TextStyle(
+                fontSize: 18, color: Colors.pink, fontWeight: FontWeight.bold),
+          ),
+        ),
+      );
     }
     return Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 8),
@@ -334,25 +360,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _buildCard({required List<Widget> children}) {
     if (_chaosMode) {
-       return Transform.rotate(
-         angle: (math.Random().nextDouble() - 0.5) * 0.2, // Random rotation
-         child: Container(
-           decoration: BoxDecoration(
-             color: Colors.primaries[math.Random().nextInt(Colors.primaries.length)],
-             borderRadius: BorderRadius.circular(math.Random().nextDouble() * 50),
-             border: Border.all(color: Colors.black, width: 2),
-           ),
-           padding: const EdgeInsets.all(12),
-           child: Column(children: children),
-         ),
-       );
+      return Transform.rotate(
+        angle: (math.Random().nextDouble() - 0.5) * 0.2, // Random rotation
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors
+                .primaries[math.Random().nextInt(Colors.primaries.length)],
+            borderRadius:
+                BorderRadius.circular(math.Random().nextDouble() * 50),
+            border: Border.all(color: Colors.black, width: 2),
+          ),
+          padding: const EdgeInsets.all(12),
+          child: Column(children: children),
+        ),
+      );
     }
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 15, offset: const Offset(0, 5)),
+          BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 15,
+              offset: const Offset(0, 5)),
         ],
       ),
       child: Column(
@@ -363,83 +394,91 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _buildCloudBackupCard() {
     final enabled = _backupSettings?.cloudBackupEnabled ?? false;
-    final lastBackup = _backupSettings?.lastBackupTime != null 
-       ? DateFormat('MMM d, HH:mm').format(_backupSettings!.lastBackupTime!)
-       : 'Never';
-    final userEmail = _backupService.settings?.userId ?? _backupService.settings?.userEmail; 
-    
-    return FutureBuilder<UserSession?>(
-      future: SessionManager().getCurrentSession(),
-      builder: (context, snapshot) {
-         final sessionEmail = snapshot.data?.email;
-         final displayEmail = sessionEmail ?? userEmail;
-         final bool isSignedOn = displayEmail != null;
+    final lastBackup = _backupSettings?.lastBackupTime != null
+        ? DateFormat('MMM d, HH:mm').format(_backupSettings!.lastBackupTime!)
+        : 'Never';
+    final userEmail =
+        _backupService.settings?.userId ?? _backupService.settings?.userEmail;
 
-         return _buildCard(
-           children: [
-             SwitchListTile(
-               contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-               activeColor: AppTheme.primaryBlue,
-               title: const Text('Cloud Backup', style: TextStyle(fontWeight: FontWeight.w600)),
-               subtitle: Text(
-                 isSignedOn ? 'Active • $displayEmail' : 'Disabled',
-                 style: TextStyle(
-                   color: isSignedOn ? AppTheme.primaryBlue : Colors.grey,
-                   fontSize: 13,
-                 ),
-               ),
-               secondary: Container(
-                 padding: const EdgeInsets.all(8),
-                 decoration: BoxDecoration(
-                   color: enabled ? AppTheme.primaryBlue.withOpacity(0.1) : Colors.grey.withOpacity(0.1),
-                   shape: BoxShape.circle,
-                 ),
-                 child: Icon(Icons.cloud_queue, color: enabled ? AppTheme.primaryBlue : Colors.grey),
-               ),
-               value: enabled,
-               onChanged: _toggleBackup,
-             ),
-             
-             if (enabled && isSignedOn) ...[
-               const Divider(height: 1, indent: 20, endIndent: 20),
-               Padding(
-                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-                 child: Column(
-                   children: [
-                     Row(
-                       children: [
-                         Expanded(
-                           child: _buildActionButton(
-                             icon: Icons.upload_file_rounded,
-                             label: 'Backup',
-                             onTap: _handleBackupNow,
-                             isPrimary: true,
-                           ),
-                         ),
-                         const SizedBox(width: 12),
-                         Expanded(
-                           child: _buildActionButton(
-                             icon: Icons.history_rounded,
-                             label: 'Restore',
-                             onTap: _handleRestore,
-                             isPrimary: false,
-                           ),
-                         ),
-                       ],
-                     ),
-                     const SizedBox(height: 12),
-                     Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.access_time_rounded, size: 14, color: Colors.grey[400]),
-                        const SizedBox(width: 4),
-                        Text('Last synced: $lastBackup', style: TextStyle(color: Colors.grey[400], fontSize: 12)),
-                      ],
-                     ),
-                   ],
-                 ),
-               ),
-             ] else if (!isSignedOn) ...[
+    return FutureBuilder<UserSession?>(
+        future: SessionManager().getCurrentSession(),
+        builder: (context, snapshot) {
+          final sessionEmail = snapshot.data?.email;
+          final displayEmail = sessionEmail ?? userEmail;
+          final bool isSignedOn = displayEmail != null;
+
+          return _buildCard(
+            children: [
+              SwitchListTile(
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                activeColor: AppTheme.primaryBlue,
+                title: const Text('Cloud Backup',
+                    style: TextStyle(fontWeight: FontWeight.w600)),
+                subtitle: Text(
+                  isSignedOn ? 'Active • $displayEmail' : 'Disabled',
+                  style: TextStyle(
+                    color: isSignedOn ? AppTheme.primaryBlue : Colors.grey,
+                    fontSize: 13,
+                  ),
+                ),
+                secondary: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: enabled
+                        ? AppTheme.primaryBlue.withOpacity(0.1)
+                        : Colors.grey.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.cloud_queue,
+                      color: enabled ? AppTheme.primaryBlue : Colors.grey),
+                ),
+                value: enabled,
+                onChanged: _toggleBackup,
+              ),
+              if (enabled && isSignedOn) ...[
+                const Divider(height: 1, indent: 20, endIndent: 20),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildActionButton(
+                              icon: Icons.upload_file_rounded,
+                              label: 'Backup',
+                              onTap: _handleBackupNow,
+                              isPrimary: true,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _buildActionButton(
+                              icon: Icons.history_rounded,
+                              label: 'Restore',
+                              onTap: _handleRestore,
+                              isPrimary: false,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.access_time_rounded,
+                              size: 14, color: Colors.grey[400]),
+                          const SizedBox(width: 4),
+                          Text('Last synced: $lastBackup',
+                              style: TextStyle(
+                                  color: Colors.grey[400], fontSize: 12)),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ] else if (!isSignedOn) ...[
                 const Divider(height: 1, indent: 20, endIndent: 20),
                 Padding(
                   padding: const EdgeInsets.all(16),
@@ -450,11 +489,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     isPrimary: false,
                   ),
                 ),
-             ],
-           ],
-         );
-      }
-    );
+              ],
+            ],
+          );
+        });
   }
 
   Widget _buildDataManagementCard() {
@@ -465,7 +503,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           title: 'Export Data',
           subtitle: 'Share inventory & bills',
           onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const ExportImportScreen()));
+            Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const ExportImportScreen()));
           },
         ),
       ],
@@ -524,9 +563,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         child: Icon(icon, color: iconColor, size: 22),
       ),
-      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-      subtitle: subtitle != null ? Text(subtitle, style: TextStyle(fontSize: 13, color: Colors.grey[500])) : null,
-      trailing: showArrow ? Icon(Icons.chevron_right_rounded, color: Colors.grey[300], size: 20) : null,
+      title: Text(title,
+          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+      subtitle: subtitle != null
+          ? Text(subtitle,
+              style: TextStyle(fontSize: 13, color: Colors.grey[500]))
+          : null,
+      trailing: showArrow
+          ? Icon(Icons.chevron_right_rounded, color: Colors.grey[300], size: 20)
+          : null,
       onTap: onTap,
     );
   }
@@ -547,15 +592,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
           decoration: BoxDecoration(
             color: isPrimary ? AppTheme.primaryBlue : Colors.white,
             borderRadius: BorderRadius.circular(12),
-            border: isPrimary ? null : Border.all(color: Colors.grey[200]!, width: 1.5),
-            boxShadow: isPrimary 
-              ? [BoxShadow(color: AppTheme.primaryBlue.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4))]
-              : null,
+            border: isPrimary
+                ? null
+                : Border.all(color: Colors.grey[200]!, width: 1.5),
+            boxShadow: isPrimary
+                ? [
+                    BoxShadow(
+                        color: AppTheme.primaryBlue.withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4))
+                  ]
+                : null,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 18, color: isPrimary ? Colors.white : AppTheme.primaryBlue),
+              Icon(icon,
+                  size: 18,
+                  color: isPrimary ? Colors.white : AppTheme.primaryBlue),
               const SizedBox(width: 8),
               Text(
                 label,
@@ -577,10 +631,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Sign Out'),
-        content: const Text('Are you sure you want to sign out? You will need to login again.'),
+        content: const Text(
+            'Are you sure you want to sign out? You will need to login again.'),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('CANCEL')),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx), child: const Text('CANCEL')),
           TextButton(
             onPressed: () async {
               final sessionManager = SessionManager();

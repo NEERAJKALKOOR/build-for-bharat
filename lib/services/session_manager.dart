@@ -10,10 +10,10 @@ class SessionManager {
   Future<UserSession> createSession(String email) async {
     try {
       final box = await Hive.openBox<UserSession>(_sessionBoxName);
-      
+
       // Invalidate any existing sessions for this email
       await invalidateAllSessions();
-      
+
       // Create new session
       final session = UserSession(
         email: email,
@@ -22,10 +22,11 @@ class SessionManager {
         expiresAt: DateTime.now().add(Duration(days: _sessionValidityDays)),
         isActive: true,
       );
-      
+
       await box.put('current_session', session);
-      print('✅ Session created for $email (expires in $_sessionValidityDays days)');
-      
+      print(
+          '✅ Session created for $email (expires in $_sessionValidityDays days)');
+
       return session;
     } catch (e) {
       print('Error creating session: $e');
@@ -38,18 +39,18 @@ class SessionManager {
     try {
       final box = await Hive.openBox<UserSession>(_sessionBoxName);
       final session = box.get('current_session');
-      
+
       if (session == null) {
         return null;
       }
-      
+
       // Check if session is still valid
       if (!session.isValid) {
         print('⚠️ Session expired or inactive');
         await invalidateSession();
         return null;
       }
-      
+
       return session;
     } catch (e) {
       print('Error getting current session: $e');
@@ -68,7 +69,7 @@ class SessionManager {
     try {
       final box = await Hive.openBox<UserSession>(_sessionBoxName);
       final session = box.get('current_session');
-      
+
       if (session != null) {
         session.isActive = false;
         await session.save();
@@ -83,12 +84,12 @@ class SessionManager {
   Future<void> invalidateAllSessions() async {
     try {
       final box = await Hive.openBox<UserSession>(_sessionBoxName);
-      
+
       for (final session in box.values) {
         session.isActive = false;
         await session.save();
       }
-      
+
       print('✅ All sessions invalidated');
     } catch (e) {
       print('Error invalidating all sessions: $e');
@@ -100,9 +101,10 @@ class SessionManager {
     try {
       final box = await Hive.openBox<UserSession>(_sessionBoxName);
       final session = box.get('current_session');
-      
+
       if (session != null && session.isActive) {
-        session.expiresAt = DateTime.now().add(Duration(days: _sessionValidityDays));
+        session.expiresAt =
+            DateTime.now().add(Duration(days: _sessionValidityDays));
         await session.save();
         print('✅ Session extended for ${session.email}');
       }
@@ -121,7 +123,7 @@ class SessionManager {
   Future<Duration?> getRemainingSessionTime() async {
     final session = await getCurrentSession();
     if (session == null) return null;
-    
+
     return session.expiresAt.difference(DateTime.now());
   }
 

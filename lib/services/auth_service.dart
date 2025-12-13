@@ -17,11 +17,13 @@ class AuthService {
 
   bool get isPinSet => _box?.isNotEmpty ?? false;
 
-  Future<void> createPin(String pin, {String? securityQuestion, String? securityAnswer}) async {
+  Future<void> createPin(String pin,
+      {String? securityQuestion, String? securityAnswer}) async {
     final auth = AuthModel(
       pinHash: _hashString(pin),
       securityQuestion: securityQuestion,
-      securityAnswerHash: securityAnswer != null ? _hashString(securityAnswer) : null,
+      securityAnswerHash:
+          securityAnswer != null ? _hashString(securityAnswer) : null,
     );
     await _box?.put('auth', auth);
   }

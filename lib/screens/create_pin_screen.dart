@@ -46,10 +46,10 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
 
     try {
       await context.read<AuthProvider>().createPin(
-        pin,
-        securityQuestion: question.isNotEmpty ? question : null,
-        securityAnswer: answer.isNotEmpty ? answer : null,
-      );
+            pin,
+            securityQuestion: question.isNotEmpty ? question : null,
+            securityAnswer: answer.isNotEmpty ? answer : null,
+          );
 
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
@@ -97,7 +97,8 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
                 labelText: 'Enter PIN (4-6 digits)',
                 prefixIcon: const Icon(Icons.pin),
                 suffixIcon: IconButton(
-                  icon: Icon(_obscurePin ? Icons.visibility_off : Icons.visibility),
+                  icon: Icon(
+                      _obscurePin ? Icons.visibility_off : Icons.visibility),
                   onPressed: () => setState(() => _obscurePin = !_obscurePin),
                 ),
               ),
@@ -113,8 +114,11 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
                 labelText: 'Confirm PIN',
                 prefixIcon: const Icon(Icons.pin),
                 suffixIcon: IconButton(
-                  icon: Icon(_obscureConfirm ? Icons.visibility_off : Icons.visibility),
-                  onPressed: () => setState(() => _obscureConfirm = !_obscureConfirm),
+                  icon: Icon(_obscureConfirm
+                      ? Icons.visibility_off
+                      : Icons.visibility),
+                  onPressed: () =>
+                      setState(() => _obscureConfirm = !_obscureConfirm),
                 ),
               ),
               keyboardType: TextInputType.number,

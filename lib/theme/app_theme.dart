@@ -5,32 +5,32 @@ class AppTheme {
   // Primary Colors
   static const Color primaryBlue = Color(0xFF1B5BFF);
   static const Color darkNavy = Color(0xFF0A1A2F);
-  
+
   // Accent Colors
   static const Color tealAccent = Color(0xFF1BC8A6);
   static const Color electricPurple = Color(0xFF7B61FF);
   static const Color hotPink = Color(0xFFFF2E92);
-  
+
   // Neutral Colors
   static const Color backgroundLight = Color(0xFFF7F9FC); // Soft beige
   static const Color cardWhite = Color(0xFFFFFFFF);
   static const Color borderGray = Color(0xFFE4E8EE);
   static const Color textDark = Color(0xFF1A1A1A);
   static const Color textMuted = Color(0xFF6F7A89);
-  
+
   // Semantic Colors
   static const Color success = Color(0xFF1BC47D);
   static const Color warning = Color(0xFFFFB400);
   static const Color error = Color(0xFFE54848);
   static const Color info = Color(0xFF447BFF); // Same as lighter blue variant
-  
+
   // Dark Mode Variants
   static const Color darkBackground = Color(0xFF0A1A2F);
   static const Color darkSurface = Color(0xFF152238);
   static const Color darkBorder = Color(0xFF2A3F5F);
   static const Color darkTextPrimary = Color(0xFFFFFFFF);
   static const Color darkTextSecondary = Color(0xFFB0B8C4);
-  
+
   // Reference Specific
   static const Color softLavender = Color(0xFFE8E4F3);
 
@@ -40,19 +40,19 @@ class AppTheme {
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
-  
+
   static const LinearGradient purpleGradient = LinearGradient(
     colors: [Color(0xFF7B61FF), Color(0xFF1B5BFF)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
-  
+
   static const LinearGradient tealGradient = LinearGradient(
     colors: [Color(0xFF1BC8A6), Color(0xFF1BC47D)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
-  
+
   static const LinearGradient errorGradient = LinearGradient(
     colors: [Color(0xFFE54848), Color(0xFFD32F2F)],
     begin: Alignment.topLeft,
@@ -67,31 +67,31 @@ class AppTheme {
 
   // 🎭 SHADOWS
   static List<BoxShadow> get cardShadowLight => [
-    BoxShadow(
-      color: const Color(0xFF6F7A89).withOpacity(0.08),
-      offset: const Offset(0, 4),
-      blurRadius: 16,
-      spreadRadius: 2,
-    ),
-  ];
+        BoxShadow(
+          color: const Color(0xFF6F7A89).withOpacity(0.08),
+          offset: const Offset(0, 4),
+          blurRadius: 16,
+          spreadRadius: 2,
+        ),
+      ];
 
   static List<BoxShadow> get cardShadowDark => [
-    BoxShadow(
-      color: Colors.black.withOpacity(0.2), // Darker shadow for dark mode
-      offset: const Offset(0, 4),
-      blurRadius: 20,
-      spreadRadius: 3,
-    ),
-  ];
+        BoxShadow(
+          color: Colors.black.withOpacity(0.2), // Darker shadow for dark mode
+          offset: const Offset(0, 4),
+          blurRadius: 20,
+          spreadRadius: 3,
+        ),
+      ];
 
   static List<BoxShadow> get buttonShadow => [
-    BoxShadow(
-      color: const Color(0xFF1B5BFF).withOpacity(0.25),
-      offset: const Offset(0, 4),
-      blurRadius: 12,
-      spreadRadius: 0,
-    ),
-  ];
+        BoxShadow(
+          color: const Color(0xFF1B5BFF).withOpacity(0.25),
+          offset: const Offset(0, 4),
+          blurRadius: 12,
+          spreadRadius: 0,
+        ),
+      ];
 
   // 📝 TYPOGRAPHY STYLES
   static const TextStyle bigNumber = TextStyle(
@@ -194,14 +194,16 @@ class AppTheme {
           foregroundColor: Colors.white,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
           textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: backgroundLight,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: borderGray),
@@ -251,7 +253,8 @@ class AppTheme {
         elevation: 0,
         centerTitle: true,
         iconTheme: IconThemeData(color: darkTextPrimary),
-        titleTextStyle: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: darkTextPrimary),
+        titleTextStyle: TextStyle(
+            fontSize: 22, fontWeight: FontWeight.bold, color: darkTextPrimary),
       ),
       cardTheme: CardThemeData(
         color: darkSurface,
@@ -265,14 +268,16 @@ class AppTheme {
           foregroundColor: Colors.white,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
           textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: darkSurface,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: darkBorder),

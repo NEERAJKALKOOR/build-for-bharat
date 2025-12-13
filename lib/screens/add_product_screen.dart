@@ -50,15 +50,15 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
     if (result != null && result.isNotEmpty && mounted) {
       print('📱 Barcode scanned: $result, widget mounted: $mounted');
-      
+
       // Set barcode and loading state immediately
       setState(() {
         _barcodeController.text = result;
         _isLoading = true;
       });
-      
+
       print('🚀 Starting fetch for barcode: $result');
-      
+
       // Fetch product details - now widget will stay alive during API call
       await _fetchProductDetails(result);
     }
@@ -67,7 +67,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   Future<void> _fetchProductDetails(String barcode) async {
     try {
       print('🔍 Starting product lookup for barcode: $barcode');
-      
+
       // Use parallel product lookup service
       final lookupService = ParallelProductLookupService();
       final productData = await lookupService.lookupProduct(barcode);
@@ -102,13 +102,13 @@ class _AddProductScreenState extends State<AddProductScreen> {
       } else {
         // No valid product found from any API
         _apiSource = null;
-        
+
         print('⚠️ No valid product found for barcode: $barcode');
-        
+
         setState(() {
           _isLoading = false;
         });
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
@@ -120,12 +120,12 @@ class _AddProductScreenState extends State<AddProductScreen> {
       }
     } catch (e) {
       print('❌ Error in _fetchProductDetails: $e');
-      
+
       if (mounted) {
         setState(() {
           _isLoading = false;
         });
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error fetching product details: ${e.toString()}'),
@@ -191,14 +191,14 @@ class _AddProductScreenState extends State<AddProductScreen> {
           title: const Text('Add Product'),
         ),
         body: Stack(
-        children: [
-          SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
+          children: [
+            SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
                     Card(
                       child: Padding(
                         padding: const EdgeInsets.all(16),
@@ -339,31 +339,31 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 ),
               ),
             ),
-          // Loading overlay - shows on top without blocking the form
-          if (_isLoading)
-            Container(
-              color: Colors.black26,
-              child: const Center(
-                child: Card(
-                  child: Padding(
-                    padding: EdgeInsets.all(20),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        CircularProgressIndicator(),
-                        SizedBox(height: 16),
-                        Text(
-                          'Fetching product details...',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ],
+            // Loading overlay - shows on top without blocking the form
+            if (_isLoading)
+              Container(
+                color: Colors.black26,
+                child: const Center(
+                  child: Card(
+                    child: Padding(
+                      padding: EdgeInsets.all(20),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CircularProgressIndicator(),
+                          SizedBox(height: 16),
+                          Text(
+                            'Fetching product details...',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-        ],
-      ),
+          ],
+        ),
       ),
     );
   }

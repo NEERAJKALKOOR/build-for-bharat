@@ -19,23 +19,24 @@ class ProductData {
 
   factory ProductData.fromJson(Map<String, dynamic> json, String apiSource) {
     final product = json['product'] as Map<String, dynamic>?;
-    
+
     if (product == null) {
       print('⚠️ ProductData.fromJson: product field is null');
       return ProductData(source: apiSource);
     }
 
-    final name = product['product_name'] as String? ?? 
-                 product['generic_name'] as String?;
-    
-    print('📦 Parsing product: name=$name, brands=${product['brands']}, categories=${product['categories']}');
+    final name = product['product_name'] as String? ??
+        product['generic_name'] as String?;
+
+    print(
+        '📦 Parsing product: name=$name, brands=${product['brands']}, categories=${product['categories']}');
 
     return ProductData(
       name: name,
       brand: product['brands'] as String?,
       category: product['categories'] as String?,
-      imageUrl: product['image_url'] as String? ?? 
-                product['image_front_url'] as String?,
+      imageUrl: product['image_url'] as String? ??
+          product['image_front_url'] as String?,
       barcode: product['code'] as String?,
       source: apiSource,
     );

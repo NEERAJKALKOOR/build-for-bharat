@@ -36,18 +36,22 @@ class BillingService {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     return _box?.values.where((bill) {
-      final billDate = DateTime(
-        bill.timestamp.year,
-        bill.timestamp.month,
-        bill.timestamp.day,
-      );
-      return billDate == today;
-    }).toList() ?? [];
+          final billDate = DateTime(
+            bill.timestamp.year,
+            bill.timestamp.month,
+            bill.timestamp.day,
+          );
+          return billDate == today;
+        }).toList() ??
+        [];
   }
 
   List<Bill> getBillsForLastNDays(int days) {
     final cutoff = DateTime.now().subtract(Duration(days: days));
-    return _box?.values.where((bill) => bill.timestamp.isAfter(cutoff)).toList() ?? [];
+    return _box?.values
+            .where((bill) => bill.timestamp.isAfter(cutoff))
+            .toList() ??
+        [];
   }
 
   List<Map<String, dynamic>> exportToJson() {
