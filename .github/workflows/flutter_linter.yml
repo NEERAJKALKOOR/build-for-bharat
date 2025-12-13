@@ -1,27 +1,26 @@
-
-
 name: Flutter Linter
 
 on:
-  pull_request:
   push:
-    branches: [ "main" ]
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
-  analyze:
+  flutter_analyze:
+    name: Run Flutter Analyze
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install Flutter
+      - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: stable
-
-      - name: Install Dependencies
+          channel: 'stable'
+          
+      - name: Install dependencies
         run: flutter pub get
 
-      - name: Run Flutter Analyzer
+      - name: Analyze code
         run: flutter analyze
