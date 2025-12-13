@@ -3,6 +3,7 @@ import 'billing_screen.dart';
 import 'dashboard_screen.dart';
 import 'inventory_list_screen.dart';
 import 'settings_screen.dart';
+import 'analytics_screen.dart';
 import '../theme/app_theme.dart';
 
 class MainNavigationScreen extends StatefulWidget {
@@ -15,10 +16,11 @@ class MainNavigationScreen extends StatefulWidget {
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _currentIndex = 0;
 
-  final List<Widget> _screens = const [
+  List<Widget> get _screens => const [
     DashboardScreen(),
     InventoryListScreen(),
     BillingScreen(),
+    AnalyticsScreen(),
     SettingsScreen(),
   ];
 
@@ -72,6 +74,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               BottomNavigationBarItem(
                 icon: Icon(Icons.receipt_long),
                 label: 'Billing',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.analytics_outlined),
+                label: 'Analysis',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.settings),

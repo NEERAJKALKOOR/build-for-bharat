@@ -265,7 +265,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('My Store', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: AppTheme.darkNavy)),
+            const Text('Namma Kirani', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: AppTheme.darkNavy)),
             const SizedBox(height: 4),
             Row(
               children: [
